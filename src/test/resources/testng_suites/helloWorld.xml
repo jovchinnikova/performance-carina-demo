@@ -1,7 +1,7 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite verbose="1" name="Performance Demo Tests - Hello World" parallel="methods">
 
-	<parameter name="suiteOwner" value="qpsdemo"/>
+	<parameter name="suiteOwner" value="jovchinnikova"/>
 	<parameter name="jenkinsJobName" value="Hello-World-Test"/>
 	<parameter name="jenkinsJobType" value="api"/>
 
