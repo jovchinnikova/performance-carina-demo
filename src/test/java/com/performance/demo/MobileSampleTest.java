@@ -16,6 +16,8 @@
 package com.performance.demo;
 
 import com.performance.demo.pages.common.*;
+import com.performance.demo.performance.android.PerformanceListener;
+import com.performance.demo.performance.android.dao.Flow;
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
 import com.zebrunner.agent.core.annotation.TestLabel;
 import com.zebrunner.carina.core.registrar.ownership.MethodOwner;
@@ -30,7 +32,8 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils {
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "regression"})
     public void testLoginUser() {
-        String username = "Test user";
+        String username = "Test_user";
+        PerformanceListener.startPerformanceTracking(Flow.LOGIN_FLOW, username);
         String password = RandomStringUtils.randomAlphabetic(10);
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
         Assert.assertTrue(welcomePage.isPageOpened(), "Welcome page isn't opened");
@@ -42,6 +45,7 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils {
         loginPage.checkPrivacyPolicyCheckbox();
         CarinaDescriptionPageBase carinaDescriptionPage = loginPage.clickLoginBtn();
         Assert.assertTrue(carinaDescriptionPage.isPageOpened(), "Carina description page isn't opened");
+        PerformanceListener.collectPerfBenchmarks();
     }
 
     @Test()
