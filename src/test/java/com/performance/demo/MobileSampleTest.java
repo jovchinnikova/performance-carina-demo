@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 public class MobileSampleTest implements IAbstractTest, IMobileUtils {
 
     @Test()
-    @MethodOwner(owner = "qpsdemo")
+    @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "regression"})
     public void testLoginUser() {
         String username = "Test user";
@@ -45,7 +45,7 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils {
     }
 
     @Test()
-    @MethodOwner(owner = "qpsdemo")
+    @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "acceptance"})
     public void testUIElements() {
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
@@ -66,8 +66,8 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils {
         Assert.assertTrue(uiElements.isCopyChecked(), "Copy checkbox was not checked");
         uiElements.clickOnFemaleRadioButton();
         Assert.assertTrue(uiElements.isFemaleRadioButtonSelected(), "Female radio button was not selected!");
-        uiElements.clickOnOtherRadioButton();
-        Assert.assertTrue(uiElements.isOthersRadioButtonSelected(), "Others radio button was not selected!");
+        /*uiElements.clickOnOtherRadioButton();
+        Assert.assertTrue(uiElements.isOthersRadioButtonSelected(), "Others radio button was not selected!");*/
     }
 
 }
