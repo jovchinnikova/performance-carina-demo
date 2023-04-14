@@ -49,16 +49,16 @@ public class PerformanceData implements IDriverPool {
 
     private final Long runId = CurrentTestRun.getId().orElse(0L);
     private final Long testId = CurrentTest.getId().orElse(0L);
-    private final String errorOutput = String.format("No process found for: %s\n", bundleId);
 
-    private static String bundleId;
+    private String bundleId = getAppPackage();
+    private String errorOutput = String.format("No process found for: %s\n", bundleId);
+    private String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
 
     private static NetParser.NetRow rowStart;
 
     public PerformanceData() {
         this.dbService = new InfluxDbService();
         this.generalParser = new GeneralParser();
-        bundleId = getAppPackage();
     }
 
     public enum PerformanceTypes {
@@ -183,8 +183,6 @@ public class PerformanceData implements IDriverPool {
         String pid;
         String netData = "";
 
-        String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
-
         pid = ((String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
                 ImmutableMap.of("command", "", "args", Collections.singletonList(pidCommand)))).
                 replaceAll("\\s+", "");
@@ -238,8 +236,6 @@ public class PerformanceData implements IDriverPool {
 
     private Double collectCpuBenchmarks() {
         String pid;
-
-        String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
 
         pid = ((String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
                 ImmutableMap.of("command", "", "args", Collections.singletonList(pidCommand)))).
@@ -355,8 +351,7 @@ public class PerformanceData implements IDriverPool {
 
     private HashMap<String, Double> getPerfDataFromAppium(PerformanceTypes performanceType) {
         return parsePerfData(((HasSupportedPerformanceDataType) getDriver()).getPerformanceData(
-                bundleId, performanceType.cmdArgs,
-                2));
+                bundleId, performanceType.cmdArgs, 2));
     }
 
     private static HashMap<String, Double> parsePerfData(List<List<Object>> data) {
@@ -446,7 +441,27 @@ public class PerformanceData implements IDriverPool {
         PerformanceData.executionStopWatch = executionStopWatch;
     }
 
-    public static String getBundleId() {
+    public String getBundleId() {
         return bundleId;
+    }
+
+    public void setBundleId(String bundleId) {
+        this.bundleId = bundleId;
+    }
+
+    public String getErrorOutput() {
+        return errorOutput;
+    }
+
+    public void setErrorOutput(String errorOutput) {
+        this.errorOutput = errorOutput;
+    }
+
+    public String getPidCommand() {
+        return pidCommand;
+    }
+
+    public void setPidCommand(String pidCommand) {
+        this.pidCommand = pidCommand;
     }
 }
