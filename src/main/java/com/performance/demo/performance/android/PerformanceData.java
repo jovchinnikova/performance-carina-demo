@@ -11,6 +11,7 @@ import com.zebrunner.agent.core.registrar.CurrentTestRun;
 import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.webdriver.IDriverPool;
 import io.appium.java_client.android.HasSupportedPerformanceDataType;
+import org.openqa.selenium.HasCapabilities;
 import org.openqa.selenium.JavascriptExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,22 +49,26 @@ public class PerformanceData implements IDriverPool {
 
     private final Long runId = CurrentTestRun.getId().orElse(0L);
     private final Long testId = CurrentTest.getId().orElse(0L);
+    private final String errorOutput = String.format("No process found for: %s\n", bundleId);
+
+    private static String bundleId;
 
     private static NetParser.NetRow rowStart;
 
     public PerformanceData() {
         this.dbService = new InfluxDbService();
         this.generalParser = new GeneralParser();
+        bundleId = getAppPackage();
     }
 
     public enum PerformanceTypes {
         CPU("top -n 1 | grep -E \"%s\""),
-        MEM("dumpsys meminfo com.solvd.carinademoapplication"),
+        MEM("dumpsys meminfo %s"),
         NET("cat proc/%s/net/dev"),
-        PID("pidof -s com.solvd.carinademoapplication"),
+        PID("pidof -s %s"),
         CORE("cat /proc/stat"),
-        USERID("dumpsys package com.solvd.carinademoapplication | grep userId"),
-        GFX("dumpsys gfxinfo com.solvd.carinademoapplication framestats");
+        USERID("dumpsys package %s | grep userId"),
+        GFX("dumpsys gfxinfo %s framestats");
 
         private final String cmdArgs;
 
@@ -147,8 +152,10 @@ public class PerformanceData implements IDriverPool {
 
             Pattern userIdPattern = Pattern.compile("\\s*userId=(\\d*)");
 
+            String userIdCommand = String.format(PerformanceTypes.USERID.cmdArgs, bundleId);
+
             id = ((String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
-                    ImmutableMap.of("command", "", "args", Collections.singletonList(PerformanceTypes.USERID.cmdArgs)))).
+                    ImmutableMap.of("command", "", "args", Collections.singletonList(userIdCommand)))).
                     replaceAll("\\s+", "");
             LOGGER.info("UID output: {}", id);
             Matcher m = userIdPattern.matcher(id);
@@ -176,8 +183,10 @@ public class PerformanceData implements IDriverPool {
         String pid;
         String netData = "";
 
+        String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
+
         pid = ((String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
-                ImmutableMap.of("command", "", "args", Collections.singletonList(PerformanceTypes.PID.cmdArgs)))).
+                ImmutableMap.of("command", "", "args", Collections.singletonList(pidCommand)))).
                 replaceAll("\\s+", "");
         LOGGER.info("PID: {} ", pid);
 
@@ -230,8 +239,10 @@ public class PerformanceData implements IDriverPool {
     private Double collectCpuBenchmarks() {
         String pid;
 
+        String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
+
         pid = ((String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
-                ImmutableMap.of("command", "", "args", Collections.singletonList(PerformanceTypes.PID.cmdArgs)))).
+                ImmutableMap.of("command", "", "args", Collections.singletonList(pidCommand)))).
                 replaceAll("\\s+", "");
         LOGGER.info("PID: {} ", pid);
 
@@ -283,10 +294,12 @@ public class PerformanceData implements IDriverPool {
     private MemParser.MemRow collectMemoryBenchmarks() {
         String memOutput = "";
 
+        String memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
+
         for (int x = 0; x <= 7; x++) {
             memOutput = (String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
-                    ImmutableMap.of("command", "", "args", Collections.singletonList(PerformanceTypes.MEM.cmdArgs)));
-            if (!memOutput.isEmpty() && !"No process found for: com.solvd.carinademoapplication\n".equals(memOutput)) {
+                    ImmutableMap.of("command", "", "args", Collections.singletonList(memCommand)));
+            if (!memOutput.isEmpty() && !errorOutput.equals(memOutput)) {
                 memQuantity++;
                 break;
             }
@@ -305,10 +318,12 @@ public class PerformanceData implements IDriverPool {
     private GfxParser.GfxRow collectGfxBenchmarks() {
         String output = "";
 
+        String gfxCommand = String.format(PerformanceTypes.GFX.cmdArgs, bundleId);
+
         for (int x = 0; x <= 7; x++) {
             output = (String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
-                    ImmutableMap.of("command", "", "args", Collections.singletonList(PerformanceTypes.GFX.cmdArgs)));
-            if (!output.equals("No process found for: com.solvd.carinademoapplication\n")) {
+                    ImmutableMap.of("command", "", "args", Collections.singletonList(gfxCommand)));
+            if (!output.equals(errorOutput)) {
                 break;
             }
             LOGGER.info("# Attempts: {}", (x + 1));
@@ -340,8 +355,7 @@ public class PerformanceData implements IDriverPool {
 
     private HashMap<String, Double> getPerfDataFromAppium(PerformanceTypes performanceType) {
         return parsePerfData(((HasSupportedPerformanceDataType) getDriver()).getPerformanceData(
-                "com.solvd.carinademoapplication",
-                performanceType.cmdArgs,
+                bundleId, performanceType.cmdArgs,
                 2));
     }
 
@@ -357,6 +371,11 @@ public class PerformanceData implements IDriverPool {
             readableData.put((String) data.get(0).get(i), val);
         }
         return readableData;
+    }
+
+    private String getAppPackage() {
+        return ((HasCapabilities) getDriver()).getCapabilities().
+                getCapability("appium:appPackage").toString();
     }
 
     public String getUserName() {
@@ -425,5 +444,9 @@ public class PerformanceData implements IDriverPool {
 
     public static void setExecutionStopWatch(Stopwatch executionStopWatch) {
         PerformanceData.executionStopWatch = executionStopWatch;
+    }
+
+    public static String getBundleId() {
+        return bundleId;
     }
 }
