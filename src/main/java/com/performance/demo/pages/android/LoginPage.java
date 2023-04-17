@@ -2,6 +2,7 @@ package com.performance.demo.pages.android;
 
 import com.performance.demo.pages.common.CarinaDescriptionPageBase;
 import com.performance.demo.pages.common.LoginPageBase;
+import com.performance.demo.performance.android.PerformanceListener;
 import com.zebrunner.carina.utils.factory.DeviceType;
 import com.zebrunner.carina.utils.factory.DeviceType.Type;
 import com.zebrunner.carina.utils.mobile.IMobileUtils;
@@ -59,6 +60,7 @@ public class LoginPage extends LoginPageBase implements IMobileUtils {
     @Override
     public CarinaDescriptionPageBase clickLoginBtn() {
         loginBtn.click();
+        PerformanceListener.collectLoginTime();
         return initPage(getDriver(), CarinaDescriptionPageBase.class);
     }
 
@@ -69,7 +71,7 @@ public class LoginPage extends LoginPageBase implements IMobileUtils {
 
     @Override
     public CarinaDescriptionPageBase login() {
-        String username = "Test user";
+        String username = "Test_user";
         String password = RandomStringUtils.randomAlphabetic(10);
         typeName(username);
         typePassword(password);

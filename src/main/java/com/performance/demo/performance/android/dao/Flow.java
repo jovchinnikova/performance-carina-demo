@@ -2,7 +2,7 @@ package com.performance.demo.performance.android.dao;
 
 public enum Flow {
 
-    LOGIN_FLOW("login_flow"), SIGN_UP_FLOW("sign_up_flow");
+    LOGIN_FLOW("login_flow"), SIGN_UP_FLOW("sign_up_flow"), UI_ELEMENTS("ui_elements_flow");
 
     private final String name;
 
