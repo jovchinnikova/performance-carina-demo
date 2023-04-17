@@ -52,6 +52,7 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils {
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "acceptance"})
     public void testUIElements() {
+        PerformanceListener.startPerformanceTracking(Flow.UI_ELEMENTS,"Test_user");
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
         LoginPageBase loginPage = welcomePage.clickNextBtn();
         CarinaDescriptionPageBase carinaDescriptionPage = loginPage.login();
@@ -70,6 +71,7 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils {
         Assert.assertTrue(uiElements.isCopyChecked(), "Copy checkbox was not checked");
         uiElements.clickOnFemaleRadioButton();
         Assert.assertTrue(uiElements.isFemaleRadioButtonSelected(), "Female radio button was not selected!");
+        PerformanceListener.collectPerfBenchmarks();
         /*uiElements.clickOnOtherRadioButton();
         Assert.assertTrue(uiElements.isOthersRadioButtonSelected(), "Others radio button was not selected!");*/
     }

@@ -50,9 +50,10 @@ public class PerformanceData implements IDriverPool {
     private final Long runId = CurrentTestRun.getId().orElse(0L);
     private final Long testId = CurrentTest.getId().orElse(0L);
 
-    private String bundleId = getAppPackage();
-    private String errorOutput = String.format("No process found for: %s\n", bundleId);
-    private String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
+    private final String bundleId = getAppPackage();
+    private final String errorOutput = String.format("No process found for: %s\n", bundleId);
+    private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
+    private final String cpuCommand = generateCpuCommand();
 
     private static NetParser.NetRow rowStart;
 
@@ -62,7 +63,7 @@ public class PerformanceData implements IDriverPool {
     }
 
     public enum PerformanceTypes {
-        CPU("top -n 1 | grep -E \"%s\""),
+        CPU("top -n 1 | grep -E \"%s|%s\""),
         MEM("dumpsys meminfo %s"),
         NET("cat proc/%s/net/dev"),
         PID("pidof -s %s"),
@@ -235,15 +236,8 @@ public class PerformanceData implements IDriverPool {
     }
 
     private Double collectCpuBenchmarks() {
-        String pid;
-
-        pid = ((String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
-                ImmutableMap.of("command", "", "args", Collections.singletonList(pidCommand)))).
-                replaceAll("\\s+", "");
-        LOGGER.info("PID: {} ", pid);
 
         String cpuOutput = "";
-        String cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
 
         try {
             for (int x = 0; x <= 7; x++) {
@@ -373,6 +367,12 @@ public class PerformanceData implements IDriverPool {
                 getCapability("appium:appPackage").toString();
     }
 
+    private String generateCpuCommand() {
+        String processName1 = bundleId.substring(0, 14).concat("+");
+        String processName2 = bundleId.substring(0, 15).concat("+");
+        return String.format(PerformanceTypes.CPU.cmdArgs, processName1, processName2);
+    }
+
     public String getUserName() {
         return userName;
     }
@@ -445,23 +445,15 @@ public class PerformanceData implements IDriverPool {
         return bundleId;
     }
 
-    public void setBundleId(String bundleId) {
-        this.bundleId = bundleId;
-    }
-
     public String getErrorOutput() {
         return errorOutput;
-    }
-
-    public void setErrorOutput(String errorOutput) {
-        this.errorOutput = errorOutput;
     }
 
     public String getPidCommand() {
         return pidCommand;
     }
 
-    public void setPidCommand(String pidCommand) {
-        this.pidCommand = pidCommand;
+    public String getCpuCommand() {
+        return cpuCommand;
     }
 }
