@@ -27,9 +27,10 @@ public class PerformanceData implements IDriverPool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String RUN_URL = R.TESTDATA.get("run_url");
+    public static final String RUN_URL = R.TESTDATA.get("grafana_run_url");
     public static final String GRAFANA_TOKEN = R.TESTDATA.getDecrypted("grafana_token");
-    private static final String TEST_URL = R.TESTDATA.get("test_url");
+    public static final String GRAFANA_HOST = R.TESTDATA.get("grafana_host");
+    private static final String TEST_URL = R.TESTDATA.get("grafana_test_url");
 
     private final InfluxDbService dbService;
     private final GeneralParser generalParser;
@@ -55,7 +56,7 @@ public class PerformanceData implements IDriverPool {
 
     private String userName;
 
-    private static NetParser.NetRow rowStart;
+    private NetParser.NetRow rowStart;
 
     public PerformanceData() {
         this.dbService = new InfluxDbService();
@@ -126,7 +127,7 @@ public class PerformanceData implements IDriverPool {
 
         NetParser.NetRow row = (NetParser.NetRow) collectNetBenchmarks();
 
-        subtractNetData(getRowStart(), row, instant, flowName);
+        subtractNetData(row, instant, flowName);
 
         endEpochMilli = instant.toEpochMilli() + 3000;
 
@@ -212,7 +213,7 @@ public class PerformanceData implements IDriverPool {
         return netRow;
     }
 
-    private void subtractNetData(NetParser.NetRow rowStart, NetParser.NetRow rowEnd, Instant instant, String flowName) {
+    private void subtractNetData(NetParser.NetRow rowEnd, Instant instant, String flowName) {
         try {
             int rbResult = (int) (rowEnd.getRb() - rowStart.getRb());
             int rpResult = (int) (rowEnd.getRp() - rowStart.getRp());
@@ -322,23 +323,25 @@ public class PerformanceData implements IDriverPool {
         return (GfxParser.GfxRow) generalParser.parse(Arrays.asList(output.split("\\n")), PerformanceTypes.GFX);
     }
 
-    public void collectLoginTime(Stopwatch stopwatch, Instant instant, String flowName) {
-        LOGGER.info("[ PERFORMANCE INVESTIGATION ] Login took: {}", stopwatch);
-        Double loginTime = (double) stopwatch.elapsed(TimeUnit.MILLISECONDS);
+    public void collectLoginTime(String flowName) {
+        Instant instant = Instant.now();
+        LOGGER.info("[ PERFORMANCE INVESTIGATION ] Login took: {}", loginStopwatch);
+        Double loginTime = (double) loginStopwatch.elapsed(TimeUnit.MILLISECONDS);
         allBenchmarks.add(new LoginTime(loginTime, instant, flowName,
                 userName));
     }
 
-    public void collectExecutionTime(Stopwatch stopwatch, Instant instant, String flowName) {
-        stopwatch.stop();
-        LOGGER.info("[ PERFORMANCE INVESTIGATION ] Test execution took: {}", stopwatch);
-        Double executionTime = (double) stopwatch.elapsed(TimeUnit.MILLISECONDS);
+    public void collectExecutionTime(String flowName) {
+        executionStopWatch.stop();
+        Instant instant = Instant.now();
+        LOGGER.info("[ PERFORMANCE INVESTIGATION ] Test execution took: {}", executionStopWatch);
+        Double executionTime = (double) executionStopWatch.elapsed(TimeUnit.MILLISECONDS);
         allBenchmarks.add(new ExecutionTime(executionTime, instant, flowName,
                 userName));
     }
 
     private String generateDashboardUrl(String flowName, String platformName, String env) {
-        return String.format(TEST_URL, R.TESTDATA.get("grafana_host"), beginEpochMilli, endEpochMilli,
+        return String.format(TEST_URL, GRAFANA_HOST, beginEpochMilli, endEpochMilli,
                 R.CONFIG.get("app_version"), getDevice().getOsVersion(), platformName, env, getDevice().getName(),
                 flowName, userName);
     }
@@ -381,12 +384,12 @@ public class PerformanceData implements IDriverPool {
         this.userName = userName;
     }
 
-    public static NetParser.NetRow getRowStart() {
+    public NetParser.NetRow getRowStart() {
         return rowStart;
     }
 
-    public static void setRowStart(NetParser.NetRow rowStart) {
-        PerformanceData.rowStart = rowStart;
+    public void setRowStart(NetParser.NetRow rowStart) {
+        this.rowStart = rowStart;
     }
 
     public List<BaseMeasurement> getAllBenchmarks() {
