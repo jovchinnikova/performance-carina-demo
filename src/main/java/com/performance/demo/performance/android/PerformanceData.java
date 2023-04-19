@@ -27,10 +27,11 @@ public class PerformanceData implements IDriverPool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String RUN_URL = R.TESTDATA.get("grafana_run_url");
+    public static final String RUN_URL = "%s/d/eIzJir4Vk/multiple_flows?orgId=2&var-run_id=%s";
     public static final String GRAFANA_TOKEN = R.TESTDATA.getDecrypted("grafana_token");
     public static final String GRAFANA_HOST = R.TESTDATA.get("grafana_host");
-    private static final String TEST_URL = R.TESTDATA.get("grafana_test_url");
+    private static final String TEST_URL = "%s/d/Fg_sTfYnk/all_flows?orgId=2&from=%s&to=%s&var-app_version=%s&var-os_version=%s" +
+            "&var-platform_name=%s&var-env=%s&var-device_name=%s&var-flow_id=%s&var-user=%s";
 
     private final InfluxDbService dbService;
     private final GeneralParser generalParser;
