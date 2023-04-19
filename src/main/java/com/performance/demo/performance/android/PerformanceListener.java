@@ -8,8 +8,6 @@ import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.events.WebDriverListener;
 
-import java.time.Instant;
-
 public class PerformanceListener implements WebDriverListener {
 
     private static Flow flow;
@@ -32,7 +30,7 @@ public class PerformanceListener implements WebDriverListener {
      */
     public static void collectLoginTime() {
         if (flow != null && !Flow.LOGIN_FLOW.equals(flow))
-            performanceData.collectLoginTime(performanceData.getLoginStopwatch(), Instant.now(), flow.getName());
+            performanceData.collectLoginTime(flow.getName());
     }
 
     /**
@@ -41,10 +39,10 @@ public class PerformanceListener implements WebDriverListener {
     public static void collectPerfBenchmarks() {
         if (flow != null) {
             if (Flow.LOGIN_FLOW.equals(flow)) {
-                performanceData.collectLoginTime(performanceData.getLoginStopwatch(), Instant.now(), flow.getName());
+                performanceData.collectLoginTime(flow.getName());
                 performanceData.collectBenchmarks(flow.getName());
             } else {
-                performanceData.collectExecutionTime(performanceData.getExecutionStopWatch(), Instant.now(), flow.getName());
+                performanceData.collectExecutionTime(flow.getName());
                 performanceData.collectBenchmarks(flow.getName());
             }
         }
@@ -75,7 +73,7 @@ public class PerformanceListener implements WebDriverListener {
             }
 
             NetParser.NetRow row = (NetParser.NetRow) performanceData.collectNetBenchmarks();
-            PerformanceData.setRowStart(row);
+            performanceData.setRowStart(row);
         }
     }
 
