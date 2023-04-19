@@ -12,9 +12,8 @@ import java.time.Instant;
 
 public class PerformanceListener implements WebDriverListener {
 
-    private static PerformanceData performanceData;
-
     private static Flow flow;
+    private static PerformanceData performanceData;
 
     /**
      * This method should be used in the beginning of each performance test
@@ -33,7 +32,7 @@ public class PerformanceListener implements WebDriverListener {
      */
     public static void collectLoginTime() {
         if (flow != null && !Flow.LOGIN_FLOW.equals(flow))
-            performanceData.collectLoginTime(PerformanceData.getLoginStopwatch(), Instant.now(), flow.getName());
+            performanceData.collectLoginTime(performanceData.getLoginStopwatch(), Instant.now(), flow.getName());
     }
 
     /**
@@ -42,10 +41,10 @@ public class PerformanceListener implements WebDriverListener {
     public static void collectPerfBenchmarks() {
         if (flow != null) {
             if (Flow.LOGIN_FLOW.equals(flow)) {
-                performanceData.collectLoginTime(PerformanceData.getLoginStopwatch(), Instant.now(), flow.getName());
+                performanceData.collectLoginTime(performanceData.getLoginStopwatch(), Instant.now(), flow.getName());
                 performanceData.collectBenchmarks(flow.getName());
             } else {
-                performanceData.collectExecutionTime(PerformanceData.getExecutionStopWatch(), Instant.now(), flow.getName());
+                performanceData.collectExecutionTime(performanceData.getExecutionStopWatch(), Instant.now(), flow.getName());
                 performanceData.collectBenchmarks(flow.getName());
             }
         }
@@ -66,13 +65,13 @@ public class PerformanceListener implements WebDriverListener {
     private static void startTracking() {
         if (flow != null) {
             if (Flow.LOGIN_FLOW.equals(flow))
-                PerformanceData.setLoginStopwatch(Stopwatch.createStarted());
+                performanceData.setLoginStopwatch(Stopwatch.createStarted());
             else if (Flow.SIGN_UP_FLOW.equals(flow))
-                PerformanceData.setExecutionStopWatch(Stopwatch.createStarted());
+                performanceData.setExecutionStopWatch(Stopwatch.createStarted());
             else {
                 Stopwatch stopwatch = Stopwatch.createStarted();
-                PerformanceData.setLoginStopwatch(stopwatch);
-                PerformanceData.setExecutionStopWatch(stopwatch);
+                performanceData.setLoginStopwatch(stopwatch);
+                performanceData.setExecutionStopWatch(stopwatch);
             }
 
             NetParser.NetRow row = (NetParser.NetRow) performanceData.collectNetBenchmarks();

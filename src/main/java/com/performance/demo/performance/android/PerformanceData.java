@@ -27,25 +27,12 @@ public class PerformanceData implements IDriverPool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String TEST_URL = "%s/d/Fg_sTfYnk/all_flows?orgId=2&from=%s&to=%s&var-app_version=%s" +
-            "&var-os_version=%s&var-platform_name=%s&var-env=%s&var-device_name=%s&var-flow_id=%s&var-user=%s";
-    public static final String RUN_URL = "%s/d/eIzJir4Vk/multiple_flows?orgId=2&var-run_id=%s";
+    public static final String RUN_URL = R.TESTDATA.get("run_url");
     public static final String GRAFANA_TOKEN = R.TESTDATA.getDecrypted("grafana_token");
+    private static final String TEST_URL = R.TESTDATA.get("test_url");
 
     private final InfluxDbService dbService;
     private final GeneralParser generalParser;
-    private boolean epochSeconds = false;
-    private long beginEpochMilli;
-    private long endEpochMilli;
-    private List<BaseMeasurement> allBenchmarks = new ArrayList<>();
-    private int cpuQuantity = 0;
-    private int memQuantity = 0;
-    private boolean cpuNotNull;
-
-    private static Stopwatch loginStopwatch;
-    private static Stopwatch executionStopWatch;
-
-    private String userName;
 
     private final Long runId = CurrentTestRun.getId().orElse(0L);
     private final Long testId = CurrentTest.getId().orElse(0L);
@@ -54,6 +41,19 @@ public class PerformanceData implements IDriverPool {
     private final String errorOutput = String.format("No process found for: %s\n", bundleId);
     private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
     private final String cpuCommand = generateCpuCommand();
+
+    private boolean epochSeconds = false;
+    private long beginEpochMilli;
+    private long endEpochMilli;
+    private List<BaseMeasurement> allBenchmarks = new ArrayList<>();
+    private int cpuQuantity = 0;
+    private int memQuantity = 0;
+    private boolean cpuNotNull;
+
+    private Stopwatch loginStopwatch;
+    private Stopwatch executionStopWatch;
+
+    private String userName;
 
     private static NetParser.NetRow rowStart;
 
@@ -425,20 +425,20 @@ public class PerformanceData implements IDriverPool {
         return testId;
     }
 
-    public static Stopwatch getLoginStopwatch() {
+    public Stopwatch getLoginStopwatch() {
         return loginStopwatch;
     }
 
-    public static void setLoginStopwatch(Stopwatch loginStopwatch) {
-        PerformanceData.loginStopwatch = loginStopwatch;
+    public void setLoginStopwatch(Stopwatch loginStopwatch) {
+        this.loginStopwatch = loginStopwatch;
     }
 
-    public static Stopwatch getExecutionStopWatch() {
+    public Stopwatch getExecutionStopWatch() {
         return executionStopWatch;
     }
 
-    public static void setExecutionStopWatch(Stopwatch executionStopWatch) {
-        PerformanceData.executionStopWatch = executionStopWatch;
+    public void setExecutionStopWatch(Stopwatch executionStopWatch) {
+        this.executionStopWatch = executionStopWatch;
     }
 
     public String getBundleId() {
