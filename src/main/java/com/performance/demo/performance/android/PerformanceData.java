@@ -5,10 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.performance.demo.performance.android.dao.*;
 import com.performance.demo.performance.android.service.InfluxDbService;
 import com.performance.demo.utils.parser.*;
-import com.zebrunner.agent.core.registrar.Artifact;
-import com.zebrunner.agent.core.registrar.CurrentTest;
-import com.zebrunner.agent.core.registrar.CurrentTestRun;
-import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.webdriver.IDriverPool;
 import io.appium.java_client.android.HasSupportedPerformanceDataType;
 import org.openqa.selenium.HasCapabilities;
@@ -27,17 +23,8 @@ public class PerformanceData implements IDriverPool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String RUN_URL = "%s/d/eIzJir4Vk/multiple_flows?orgId=2&var-run_id=%s";
-    public static final String GRAFANA_TOKEN = R.TESTDATA.getDecrypted("grafana_token");
-    public static final String GRAFANA_HOST = R.TESTDATA.get("grafana_host");
-    private static final String TEST_URL = "%s/d/Fg_sTfYnk/all_flows?orgId=2&from=%s&to=%s&var-app_version=%s&var-os_version=%s" +
-            "&var-platform_name=%s&var-env=%s&var-device_name=%s&var-flow_id=%s&var-user=%s";
-
     private final InfluxDbService dbService;
     private final GeneralParser generalParser;
-
-    private final Long runId = CurrentTestRun.getId().orElse(0L);
-    private final Long testId = CurrentTest.getId().orElse(0L);
 
     private final String bundleId = getAppPackage();
     private final String errorOutput = String.format("No process found for: %s\n", bundleId);
@@ -51,6 +38,7 @@ public class PerformanceData implements IDriverPool {
     private int cpuQuantity = 0;
     private int memQuantity = 0;
     private boolean cpuNotNull;
+    private boolean isMatchCount;
 
     private Stopwatch loginStopwatch;
     private Stopwatch executionStopWatch;
@@ -132,15 +120,7 @@ public class PerformanceData implements IDriverPool {
 
         endEpochMilli = instant.toEpochMilli() + 3000;
 
-        dbService.writeData(allBenchmarks, cpuQuantity, memQuantity, flowName);
-        if (dbService.isMatchCount()) {
-            String dashboardUrl = generateDashboardUrl(flowName, R.CONFIG.get("capabilities.platformName").toUpperCase(), R.CONFIG.get("env"));
-            LOGGER.info("DASHBOARD URL: {}", dashboardUrl);
-            if (runId != 0 && testId != 0)
-                Artifact.attachReferenceToTest("Performance dashboard", dashboardUrl);
-        } else {
-            LOGGER.warn("Not all performance data were received during test execution");
-        }
+        isMatchCount = dbService.writeData(allBenchmarks, cpuQuantity, memQuantity, flowName);
     }
 
     /**
@@ -341,12 +321,6 @@ public class PerformanceData implements IDriverPool {
                 userName));
     }
 
-    private String generateDashboardUrl(String flowName, String platformName, String env) {
-        return String.format(TEST_URL, GRAFANA_HOST, beginEpochMilli, endEpochMilli,
-                R.CONFIG.get("app_version"), getDevice().getOsVersion(), platformName, env, getDevice().getName(),
-                flowName, userName);
-    }
-
     private HashMap<String, Double> getPerfDataFromAppium(PerformanceTypes performanceType) {
         return parsePerfData(((HasSupportedPerformanceDataType) getDriver()).getPerformanceData(
                 bundleId, performanceType.cmdArgs, 2));
@@ -421,14 +395,6 @@ public class PerformanceData implements IDriverPool {
         return cpuNotNull;
     }
 
-    public Long getRunId() {
-        return runId;
-    }
-
-    public Long getTestId() {
-        return testId;
-    }
-
     public Stopwatch getLoginStopwatch() {
         return loginStopwatch;
     }
@@ -459,5 +425,29 @@ public class PerformanceData implements IDriverPool {
 
     public String getCpuCommand() {
         return cpuCommand;
+    }
+
+    public boolean isMatchCount() {
+        return isMatchCount;
+    }
+
+    public void setMatchCount(boolean matchCount) {
+        isMatchCount = matchCount;
+    }
+
+    public long getBeginEpochMilli() {
+        return beginEpochMilli;
+    }
+
+    public void setBeginEpochMilli(long beginEpochMilli) {
+        this.beginEpochMilli = beginEpochMilli;
+    }
+
+    public long getEndEpochMilli() {
+        return endEpochMilli;
+    }
+
+    public void setEndEpochMilli(long endEpochMilli) {
+        this.endEpochMilli = endEpochMilli;
     }
 }
