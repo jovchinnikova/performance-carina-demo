@@ -19,7 +19,6 @@ public class InfluxDbService {
     private String bucket;
     private String org;
     private final InfluxDBClient client;
-    private boolean matchCount = false;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -36,9 +35,10 @@ public class InfluxDbService {
         writeApiBlocking.writeMeasurement(bucket, org, WritePrecision.NS, measurement);
     }
 
-    public void writeData(List<BaseMeasurement> allBenchmarks, int cpuOutput, int memOutput, String flowName){
+    public boolean writeData(List<BaseMeasurement> allBenchmarks, int cpuOutput, int memOutput, String flowName){
         WriteApiBlocking writeApiBlocking = client.getWriteApiBlocking();
         int actionCount;
+        boolean matchCount = false;
 
         if(Flow.SIGN_UP_FLOW.getName().equals(flowName) || Flow.LOGIN_FLOW.getName().equals(flowName)){
             actionCount = cpuOutput + memOutput + 3;
@@ -55,6 +55,7 @@ public class InfluxDbService {
                 writeApiBlocking.writeMeasurement(bucket, org, WritePrecision.NS, benchmark);
             }
         }
+        return matchCount;
     }
 
     public boolean isAvailable() {
@@ -87,13 +88,5 @@ public class InfluxDbService {
 
     public InfluxDBClient getClient() {
         return client;
-    }
-
-    public boolean isMatchCount() {
-        return matchCount;
-    }
-
-    public void setMatchCount(boolean matchCount) {
-        this.matchCount = matchCount;
     }
 }
