@@ -121,6 +121,9 @@ public class PerformanceData implements IDriverPool {
         endEpochMilli = instant.toEpochMilli() + 3000;
 
         isMatchCount = dbService.writeData(allBenchmarks, cpuQuantity, memQuantity, flowName);
+
+        if(!isMatchCount)
+            LOGGER.warn("Skipped writing data to db, not all performance data were received during test execution");
     }
 
     /**
