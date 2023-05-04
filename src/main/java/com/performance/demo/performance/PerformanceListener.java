@@ -1,7 +1,7 @@
-package com.performance.demo.performance.android;
+package com.performance.demo.performance;
 
 import com.google.common.base.Stopwatch;
-import com.performance.demo.performance.android.dao.Flow;
+import com.performance.demo.performance.dao.Flow;
 import com.performance.demo.utils.parser.NetParser;
 import com.zebrunner.agent.core.registrar.Artifact;
 import com.zebrunner.agent.core.registrar.CurrentTestRun;
@@ -21,25 +21,24 @@ public class PerformanceListener implements WebDriverListener {
 
     private static final String PERFORMANCE_DASHBOARD = "Performance dashboard";
     private static final boolean ATTACH_LINKS = Boolean.parseBoolean(R.TESTDATA.get("attach_grafana_links"));
-    private static final String RUN_URL = "%s/d/eIzJir4Vk/multiple_flows?orgId=2&var-run_id=%s";
+    private static final String RUN_URL = R.TESTDATA.get("grafana_run_url");
     private static final String GRAFANA_TOKEN = R.TESTDATA.getDecrypted("grafana_token");
     private static final String GRAFANA_HOST = R.TESTDATA.get("grafana_host");
-    private static final String TEST_URL = "%s/d/Fg_sTfYnk/all_flows?orgId=2&from=%s&to=%s&var-app_version=%s&var-os_version=%s" +
-            "&var-platform_name=%s&var-env=%s&var-device_name=%s&var-flow_id=%s&var-user=%s";
+    private static final String TEST_URL = R.TESTDATA.get("grafana_test_url");
 
     private static Long runId;
 
-    private static Flow flow;
+    private static String flowName;
     private static PerformanceData performanceData;
 
     /**
      * This method should be used in the beginning of each performance test
      */
-    public static void startPerformanceTracking(Flow flow, String userName) {
+    public static void startPerformanceTracking(String flowName, String userName) {
         if (!SpecialKeywords.IOS.equalsIgnoreCase(Configuration.getPlatform())) {
             performanceData = new PerformanceData();
             performanceData.setUserName(userName);
-            setFlow(flow);
+            setFlowName(flowName);
             runId = CurrentTestRun.getId().orElse(0L);
             startTracking();
         }
@@ -49,21 +48,21 @@ public class PerformanceListener implements WebDriverListener {
      * This method is used in authService.loginByUsernameWithPerf
      */
     public static void collectLoginTime() {
-        if (flow != null && !Flow.LOGIN_FLOW.equals(flow))
-            performanceData.collectLoginTime(flow.getName());
+        if (flowName != null && !Flow.LOGIN_FLOW.getName().equals(flowName))
+            performanceData.collectLoginTime(flowName);
     }
 
     /**
      * This method should be used in the end of each performance test
      */
     public static void collectPerfBenchmarks() {
-        if (flow != null) {
-            if (Flow.LOGIN_FLOW.equals(flow)) {
-                performanceData.collectLoginTime(flow.getName());
-                performanceData.collectBenchmarks(flow.getName());
+        if (flowName != null) {
+            if (Flow.LOGIN_FLOW.getName().equals(flowName)) {
+                performanceData.collectLoginTime(flowName);
+                performanceData.collectBenchmarks(flowName);
             } else {
-                performanceData.collectExecutionTime(flow.getName());
-                performanceData.collectBenchmarks(flow.getName());
+                performanceData.collectExecutionTime(flowName);
+                performanceData.collectBenchmarks(flowName);
             }
             attachPerformanceLinkToTest();
         }
@@ -71,21 +70,21 @@ public class PerformanceListener implements WebDriverListener {
 
     @Override
     public void afterClick(WebElement element) {
-        if (flow != null)
-            performanceData.collectSnapshotBenchmarks(flow.getName());
+        if (flowName != null)
+            performanceData.collectSnapshotBenchmarks(flowName);
     }
 
     @Override
     public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
-        if (flow != null)
-            performanceData.collectSnapshotBenchmarks(flow.getName());
+        if (flowName != null)
+            performanceData.collectSnapshotBenchmarks(flowName);
     }
 
     private static void startTracking() {
-        if (flow != null) {
-            if (Flow.LOGIN_FLOW.equals(flow))
+        if (flowName != null) {
+            if (Flow.LOGIN_FLOW.getName().equals(flowName))
                 performanceData.setLoginStopwatch(Stopwatch.createStarted());
-            else if (Flow.SIGN_UP_FLOW.equals(flow))
+            else if (Flow.SIGN_UP_FLOW.getName().equals(flowName))
                 performanceData.setExecutionStopWatch(Stopwatch.createStarted());
             else {
                 Stopwatch stopwatch = Stopwatch.createStarted();
@@ -121,19 +120,19 @@ public class PerformanceListener implements WebDriverListener {
         String deviceName = performanceData.getDevice().getName();
         String userName = performanceData.getUserName();
         return String.format(TEST_URL, GRAFANA_HOST, beginEpochMilli, endEpochMilli, appVersion, deviceVersion,
-                platformName, env, deviceName, flow.getName(), userName);
+                platformName, env, deviceName, flowName, userName);
     }
 
     public PerformanceData getPerformanceData() {
         return performanceData;
     }
 
-    public static Flow getFlow() {
-        return flow;
+    public static String getFlowName() {
+        return flowName;
     }
 
-    public static void setFlow(Flow flow) {
-        PerformanceListener.flow = flow;
+    public static void setFlowName(String flowName) {
+        PerformanceListener.flowName = flowName;
     }
 }
 

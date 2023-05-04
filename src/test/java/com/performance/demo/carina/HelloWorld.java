@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.performance.demo;
+package com.performance.demo.carina;
 
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
 import org.slf4j.Logger;

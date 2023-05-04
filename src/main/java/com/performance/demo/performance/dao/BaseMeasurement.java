@@ -1,4 +1,4 @@
-package com.performance.demo.performance.android.dao;
+package com.performance.demo.performance.dao;
 
 import com.influxdb.annotations.Column;
 import com.zebrunner.agent.core.registrar.CurrentTest;

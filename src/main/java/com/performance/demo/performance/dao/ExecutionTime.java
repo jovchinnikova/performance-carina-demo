@@ -1,17 +1,17 @@
-package com.performance.demo.performance.android.dao;
+package com.performance.demo.performance.dao;
 
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
 
 import java.time.Instant;
 
-@Measurement(name = "login_time")
-public class LoginTime extends BaseMeasurement {
+@Measurement(name = "execution_time")
+public class ExecutionTime extends BaseMeasurement {
 
     @Column(name = "value")
     private Double value;
 
-    public LoginTime(Double value, Instant time, String flowName, String userName) {
+    public ExecutionTime(Double value, Instant time, String flowName, String userName) {
         super(flowName, time, userName);
         this.value = value;
     }
@@ -23,7 +23,4 @@ public class LoginTime extends BaseMeasurement {
     public void setValue(Double value) {
         this.value = value;
     }
-
 }
-
-

@@ -1,11 +1,11 @@
-package com.performance.demo.performance.android.service;
+package com.performance.demo.performance.service;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.client.domain.WritePrecision;
-import com.performance.demo.performance.android.dao.BaseMeasurement;
-import com.performance.demo.performance.android.dao.Flow;
+import com.performance.demo.performance.dao.BaseMeasurement;
+import com.performance.demo.performance.dao.Flow;
 import com.zebrunner.carina.utils.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

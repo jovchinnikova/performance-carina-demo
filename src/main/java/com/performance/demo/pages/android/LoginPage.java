@@ -2,7 +2,7 @@ package com.performance.demo.pages.android;
 
 import com.performance.demo.pages.common.CarinaDescriptionPageBase;
 import com.performance.demo.pages.common.LoginPageBase;
-import com.performance.demo.performance.android.PerformanceListener;
+import com.performance.demo.performance.PerformanceListener;
 import com.zebrunner.carina.utils.factory.DeviceType;
 import com.zebrunner.carina.utils.factory.DeviceType.Type;
 import com.zebrunner.carina.utils.mobile.IMobileUtils;
