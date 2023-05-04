@@ -1,9 +1,9 @@
-package com.performance.demo.performance.android;
+package com.performance.demo.performance;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
-import com.performance.demo.performance.android.dao.*;
-import com.performance.demo.performance.android.service.InfluxDbService;
+import com.performance.demo.performance.dao.*;
+import com.performance.demo.performance.service.InfluxDbService;
 import com.performance.demo.utils.parser.*;
 import com.zebrunner.carina.webdriver.IDriverPool;
 import io.appium.java_client.android.HasSupportedPerformanceDataType;

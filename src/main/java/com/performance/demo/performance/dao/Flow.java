@@ -1,4 +1,4 @@
-package com.performance.demo.performance.android.dao;
+package com.performance.demo.performance.dao;
 
 public enum Flow {
 

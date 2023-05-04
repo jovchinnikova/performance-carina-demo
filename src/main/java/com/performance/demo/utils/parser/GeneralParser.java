@@ -1,6 +1,6 @@
 package com.performance.demo.utils.parser;
 
-import com.performance.demo.performance.android.PerformanceData;
+import com.performance.demo.performance.PerformanceData;
 import com.zebrunner.carina.webdriver.device.Device;
 
 import java.util.List;

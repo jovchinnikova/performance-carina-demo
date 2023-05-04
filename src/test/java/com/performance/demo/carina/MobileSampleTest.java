@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.performance.demo;
+package com.performance.demo.carina;
 
+import com.performance.demo.IPerformanceTest;
+import com.performance.demo.annotations.PerformanceTest;
 import com.performance.demo.pages.common.*;
-import com.performance.demo.performance.android.PerformanceListener;
-import com.performance.demo.performance.android.dao.Flow;
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
 import com.zebrunner.agent.core.annotation.TestLabel;
 import com.zebrunner.carina.core.registrar.ownership.MethodOwner;
@@ -26,33 +26,31 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class MobileSampleTest implements IAbstractTest, IMobileUtils {
+public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerformanceTest {
 
     @Test()
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "regression"})
+    @PerformanceTest(flow = "login_flow", userName = "Test_user")
     public void testLoginUser() {
-        String username = "Test_user";
-        PerformanceListener.startPerformanceTracking(Flow.LOGIN_FLOW, username);
         String password = RandomStringUtils.randomAlphabetic(10);
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
         Assert.assertTrue(welcomePage.isPageOpened(), "Welcome page isn't opened");
         LoginPageBase loginPage = welcomePage.clickNextBtn();
         Assert.assertFalse(loginPage.isLoginBtnActive(), "Login button is active when it should be disabled");
-        loginPage.typeName(username);
+        loginPage.typeName("Test_user");
         loginPage.typePassword(password);
         loginPage.selectMaleSex();
         loginPage.checkPrivacyPolicyCheckbox();
         CarinaDescriptionPageBase carinaDescriptionPage = loginPage.clickLoginBtn();
         Assert.assertTrue(carinaDescriptionPage.isPageOpened(), "Carina description page isn't opened");
-        PerformanceListener.collectPerfBenchmarks();
     }
 
     @Test()
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "acceptance"})
+    @PerformanceTest(flow = "ui_elements_flow", userName = "Test_user")
     public void testUIElements() {
-        PerformanceListener.startPerformanceTracking(Flow.UI_ELEMENTS,"Test_user");
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
         LoginPageBase loginPage = welcomePage.clickNextBtn();
         CarinaDescriptionPageBase carinaDescriptionPage = loginPage.login();
@@ -71,7 +69,6 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils {
         Assert.assertTrue(uiElements.isCopyChecked(), "Copy checkbox was not checked");
         uiElements.clickOnFemaleRadioButton();
         Assert.assertTrue(uiElements.isFemaleRadioButtonSelected(), "Female radio button was not selected!");
-        PerformanceListener.collectPerfBenchmarks();
         /*uiElements.clickOnOtherRadioButton();
         Assert.assertTrue(uiElements.isOthersRadioButtonSelected(), "Others radio button was not selected!");*/
     }
