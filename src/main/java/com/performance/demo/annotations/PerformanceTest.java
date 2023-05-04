@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface PerformanceTest {
 
-    String flow();
+    String flowName();
 
     String userName();
 

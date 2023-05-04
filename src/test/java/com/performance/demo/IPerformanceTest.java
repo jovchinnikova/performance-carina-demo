@@ -22,7 +22,7 @@ public interface IPerformanceTest extends IAbstractTest {
     default void startTrackingPerformance(Method method) {
         if (method.isAnnotationPresent(PerformanceTest.class)) {
             PerformanceTest annotation = method.getAnnotation(PerformanceTest.class);
-            PerformanceListener.startPerformanceTracking(annotation.flow(), annotation.userName());
+            PerformanceListener.startPerformanceTracking(annotation.flowName(), annotation.userName());
         } else {
             throw new RuntimeException("Performance test should have annotation @PerformanceTest");
         }

@@ -31,7 +31,7 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
     @Test()
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "regression"})
-    @PerformanceTest(flow = "login_flow", userName = "Test_user")
+    @PerformanceTest(flowName = "login_flow", userName = "Test_user")
     public void testLoginUser() {
         String password = RandomStringUtils.randomAlphabetic(10);
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
@@ -49,7 +49,7 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
     @Test()
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "acceptance"})
-    @PerformanceTest(flow = "ui_elements_flow", userName = "Test_user")
+    @PerformanceTest(flowName = "ui_elements_flow", userName = "Test_user")
     public void testUIElements() {
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
         LoginPageBase loginPage = welcomePage.clickNextBtn();
