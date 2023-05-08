@@ -2,7 +2,7 @@ package com.performance.demo;
 
 import com.performance.demo.annotations.PerformanceTest;
 import com.performance.demo.performance.PerformanceListener;
-import com.qaprosoft.carina.core.foundation.IAbstractTest;
+import com.zebrunner.carina.core.IAbstractTest;
 import com.zebrunner.carina.utils.R;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
