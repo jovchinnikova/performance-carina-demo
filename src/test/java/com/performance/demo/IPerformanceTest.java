@@ -4,6 +4,7 @@ import com.performance.demo.annotations.PerformanceTest;
 import com.performance.demo.performance.PerformanceListener;
 import com.zebrunner.carina.core.IAbstractTest;
 import com.zebrunner.carina.utils.R;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
@@ -29,8 +30,9 @@ public interface IPerformanceTest extends IAbstractTest {
     }
 
     @AfterMethod
-    default void collectPerformance() {
-        PerformanceListener.collectPerfBenchmarks();
+    default void collectPerformance(ITestResult iTestResult) {
+        if (iTestResult.getStatus() == 1)
+            PerformanceListener.collectPerfBenchmarks();
     }
 
     @AfterSuite
