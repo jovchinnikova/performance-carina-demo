@@ -39,8 +39,8 @@ public class PerformanceData implements IDriverPool {
     private int memQuantity = 0;
     private boolean cpuNotNull;
     private boolean isMatchCount;
-    private boolean isCollectLogin;
-    private boolean isCollectExecution;
+    private boolean collectLoginTime;
+    private boolean collectExecutionTime;
 
     private Stopwatch loginStopwatch;
     private Stopwatch executionStopWatch;
@@ -122,9 +122,9 @@ public class PerformanceData implements IDriverPool {
 
         endEpochMilli = instant.toEpochMilli() + 3000;
 
-        isMatchCount = dbService.writeData(allBenchmarks, cpuQuantity, memQuantity, isCollectLogin, isCollectExecution);
+        isMatchCount = dbService.writeData(allBenchmarks, cpuQuantity, memQuantity, collectLoginTime, collectExecutionTime);
 
-        if(!isMatchCount)
+        if (!isMatchCount)
             LOGGER.warn("Skipped writing data to db, not all performance data were received during test execution");
     }
 
@@ -456,19 +456,19 @@ public class PerformanceData implements IDriverPool {
         this.endEpochMilli = endEpochMilli;
     }
 
-    public boolean isCollectLogin() {
-        return isCollectLogin;
+    public boolean isCollectLoginTime() {
+        return collectLoginTime;
     }
 
-    public void setCollectLogin(boolean collectLogin) {
-        isCollectLogin = collectLogin;
+    public void setCollectLoginTime(boolean collectLoginTime) {
+        this.collectLoginTime = collectLoginTime;
     }
 
-    public boolean isCollectExecution() {
-        return isCollectExecution;
+    public boolean isCollectExecutionTime() {
+        return collectExecutionTime;
     }
 
-    public void setCollectExecution(boolean collectExecution) {
-        isCollectExecution = collectExecution;
+    public void setCollectExecutionTime(boolean collectExecutionTime) {
+        this.collectExecutionTime = collectExecutionTime;
     }
 }

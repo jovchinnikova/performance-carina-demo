@@ -35,14 +35,14 @@ public class InfluxDbService {
     }
 
     public boolean writeData(List<BaseMeasurement> allBenchmarks, int cpuOutput, int memOutput,
-                             boolean isCollectLogin, boolean isCollectExecution){
+                             boolean isCollectLogin, boolean isCollectExecution) {
         WriteApiBlocking writeApiBlocking = client.getWriteApiBlocking();
-        int actionCount = 0;
+        int actionCount;
         boolean matchCount = false;
 
-        if (isCollectLogin && isCollectExecution){
+        if (isCollectLogin && isCollectExecution) {
             actionCount = cpuOutput + memOutput + 4;
-        } else if (isCollectLogin || isCollectExecution){
+        } else if (isCollectLogin || isCollectExecution) {
             actionCount = cpuOutput + memOutput + 3;
         } else {
             actionCount = cpuOutput + memOutput + 2;
@@ -52,7 +52,7 @@ public class InfluxDbService {
         //boolean isAppVersionCorrect = !BaseMeasurement.cutAppVersion().contains("*");
 
         LOGGER.info("Action count: " + actionCount + " array size: " + allBenchmarks.size());
-        if(actionCount == allBenchmarks.size()) {
+        if (actionCount == allBenchmarks.size()) {
             matchCount = true;
             for (BaseMeasurement benchmark : allBenchmarks) {
                 writeApiBlocking.writeMeasurement(bucket, org, WritePrecision.NS, benchmark);
