@@ -1,7 +1,6 @@
 package com.performance.demo.performance;
 
 import com.google.common.base.Stopwatch;
-import com.performance.demo.performance.dao.Flow;
 import com.performance.demo.utils.parser.NetParser;
 import com.zebrunner.agent.core.registrar.Artifact;
 import com.zebrunner.agent.core.registrar.CurrentTestRun;
@@ -34,12 +33,14 @@ public class PerformanceListener implements WebDriverListener {
     /**
      * This method should be used in the beginning of each performance test
      */
-    public static void startPerformanceTracking(String flowName, String userName) {
+    public static void startPerformanceTracking(String flowName, String userName, boolean isCollectLogin, boolean isCollectExecution) {
         if (!SpecialKeywords.IOS.equalsIgnoreCase(Configuration.getPlatform())) {
             performanceData = new PerformanceData();
             performanceData.setUserName(userName);
             setFlowName(flowName);
             runId = CurrentTestRun.getId().orElse(0L);
+            performanceData.setCollectLogin(isCollectLogin);
+            performanceData.setCollectExecution(isCollectExecution);
             startTracking();
         }
     }
@@ -48,7 +49,7 @@ public class PerformanceListener implements WebDriverListener {
      * This method is used in authService.loginByUsernameWithPerf
      */
     public static void collectLoginTime() {
-        if (flowName != null && !Flow.LOGIN_FLOW.getName().equals(flowName))
+        if (flowName != null && (performanceData.isCollectLogin() && performanceData.isCollectExecution()))
             performanceData.collectLoginTime(flowName);
     }
 
@@ -57,10 +58,10 @@ public class PerformanceListener implements WebDriverListener {
      */
     public static void collectPerfBenchmarks() {
         if (flowName != null) {
-            if (Flow.LOGIN_FLOW.getName().equals(flowName)) {
+            if (performanceData.isCollectLogin() && !performanceData.isCollectExecution()) {
                 performanceData.collectLoginTime(flowName);
                 performanceData.collectBenchmarks(flowName);
-            } else {
+            } else if (performanceData.isCollectExecution()) {
                 performanceData.collectExecutionTime(flowName);
                 performanceData.collectBenchmarks(flowName);
             }
@@ -82,11 +83,11 @@ public class PerformanceListener implements WebDriverListener {
 
     private static void startTracking() {
         if (flowName != null) {
-            if (Flow.LOGIN_FLOW.getName().equals(flowName))
+            if (performanceData.isCollectLogin() && !performanceData.isCollectExecution())
                 performanceData.setLoginStopwatch(Stopwatch.createStarted());
-            else if (Flow.SIGN_UP_FLOW.getName().equals(flowName))
+            else if (!performanceData.isCollectLogin() && performanceData.isCollectExecution())
                 performanceData.setExecutionStopWatch(Stopwatch.createStarted());
-            else {
+            else if (performanceData.isCollectLogin() && performanceData.isCollectExecution()){
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 performanceData.setLoginStopwatch(stopwatch);
                 performanceData.setExecutionStopWatch(stopwatch);

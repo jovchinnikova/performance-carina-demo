@@ -5,7 +5,6 @@ import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.client.domain.WritePrecision;
 import com.performance.demo.performance.dao.BaseMeasurement;
-import com.performance.demo.performance.dao.Flow;
 import com.zebrunner.carina.utils.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +34,19 @@ public class InfluxDbService {
         writeApiBlocking.writeMeasurement(bucket, org, WritePrecision.NS, measurement);
     }
 
-    public boolean writeData(List<BaseMeasurement> allBenchmarks, int cpuOutput, int memOutput, String flowName){
+    public boolean writeData(List<BaseMeasurement> allBenchmarks, int cpuOutput, int memOutput,
+                             boolean isCollectLogin, boolean isCollectExecution){
         WriteApiBlocking writeApiBlocking = client.getWriteApiBlocking();
-        int actionCount;
+        int actionCount = 0;
         boolean matchCount = false;
 
-        if(Flow.SIGN_UP_FLOW.getName().equals(flowName) || Flow.LOGIN_FLOW.getName().equals(flowName)){
+        if (isCollectLogin && isCollectExecution){
+            actionCount = cpuOutput + memOutput + 4;
+        } else if (isCollectLogin || isCollectExecution){
             actionCount = cpuOutput + memOutput + 3;
         } else {
-            actionCount = cpuOutput + memOutput + 4;
+            actionCount = cpuOutput + memOutput + 2;
+            LOGGER.warn("No time duration was collected during test execution");
         }
 
         //boolean isAppVersionCorrect = !BaseMeasurement.cutAppVersion().contains("*");

@@ -13,4 +13,8 @@ public @interface PerformanceTest {
 
     String userName();
 
+    boolean collectLoginTime();
+
+    boolean collectExecutionTime();
+
 }
