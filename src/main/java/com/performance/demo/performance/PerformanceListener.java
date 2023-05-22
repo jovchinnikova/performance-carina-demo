@@ -33,14 +33,14 @@ public class PerformanceListener implements WebDriverListener {
     /**
      * This method should be used in the beginning of each performance test
      */
-    public static void startPerformanceTracking(String flowName, String userName, boolean isCollectLogin, boolean isCollectExecution) {
+    public static void startPerformanceTracking(String flowName, String userName, boolean isCollectLoginTime, boolean isCollectExecutionTime) {
         if (!SpecialKeywords.IOS.equalsIgnoreCase(Configuration.getPlatform())) {
             performanceData = new PerformanceData();
             performanceData.setUserName(userName);
             setFlowName(flowName);
             runId = CurrentTestRun.getId().orElse(0L);
-            performanceData.setCollectLogin(isCollectLogin);
-            performanceData.setCollectExecution(isCollectExecution);
+            performanceData.setCollectLoginTime(isCollectLoginTime);
+            performanceData.setCollectExecutionTime(isCollectExecutionTime);
             startTracking();
         }
     }
@@ -49,7 +49,7 @@ public class PerformanceListener implements WebDriverListener {
      * This method is used in authService.loginByUsernameWithPerf
      */
     public static void collectLoginTime() {
-        if (flowName != null && (performanceData.isCollectLogin() && performanceData.isCollectExecution()))
+        if (flowName != null && (performanceData.isCollectLoginTime() && performanceData.isCollectExecutionTime()))
             performanceData.collectLoginTime(flowName);
     }
 
@@ -58,13 +58,12 @@ public class PerformanceListener implements WebDriverListener {
      */
     public static void collectPerfBenchmarks() {
         if (flowName != null) {
-            if (performanceData.isCollectLogin() && !performanceData.isCollectExecution()) {
+            if (performanceData.isCollectLoginTime() && !performanceData.isCollectExecutionTime())
                 performanceData.collectLoginTime(flowName);
-                performanceData.collectBenchmarks(flowName);
-            } else if (performanceData.isCollectExecution()) {
+            else if (performanceData.isCollectExecutionTime())
                 performanceData.collectExecutionTime(flowName);
-                performanceData.collectBenchmarks(flowName);
-            }
+
+            performanceData.collectBenchmarks(flowName);
             attachPerformanceLinkToTest();
         }
     }
@@ -83,15 +82,14 @@ public class PerformanceListener implements WebDriverListener {
 
     private static void startTracking() {
         if (flowName != null) {
-            if (performanceData.isCollectLogin() && !performanceData.isCollectExecution())
-                performanceData.setLoginStopwatch(Stopwatch.createStarted());
-            else if (!performanceData.isCollectLogin() && performanceData.isCollectExecution())
-                performanceData.setExecutionStopWatch(Stopwatch.createStarted());
-            else if (performanceData.isCollectLogin() && performanceData.isCollectExecution()){
+            if (performanceData.isCollectLoginTime() && performanceData.isCollectExecutionTime()) {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 performanceData.setLoginStopwatch(stopwatch);
                 performanceData.setExecutionStopWatch(stopwatch);
-            }
+            } else if (performanceData.isCollectLoginTime())
+                performanceData.setLoginStopwatch(Stopwatch.createStarted());
+            else if (performanceData.isCollectExecutionTime())
+                performanceData.setExecutionStopWatch(Stopwatch.createStarted());
 
             NetParser.NetRow row = (NetParser.NetRow) performanceData.collectNetBenchmarks();
             performanceData.setRowStart(row);
