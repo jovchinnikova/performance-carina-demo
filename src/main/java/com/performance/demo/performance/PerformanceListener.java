@@ -11,7 +11,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.events.WebDriverListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.lang.invoke.MethodHandles;
 
 public class PerformanceListener implements WebDriverListener {
@@ -24,6 +23,7 @@ public class PerformanceListener implements WebDriverListener {
     private static final String GRAFANA_TOKEN = R.TESTDATA.getDecrypted("grafana_token");
     private static final String GRAFANA_HOST = R.TESTDATA.get("grafana_host");
     private static final String TEST_URL = R.TESTDATA.get("grafana_test_url");
+    private static String loginMethodName;
 
     private static Long runId;
 
@@ -86,9 +86,9 @@ public class PerformanceListener implements WebDriverListener {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 performanceData.setLoginStopwatch(stopwatch);
                 performanceData.setExecutionStopWatch(stopwatch);
-            } else if (performanceData.isCollectLoginTime())
+            } else if (performanceData.isCollectLoginTime()) {
                 performanceData.setLoginStopwatch(Stopwatch.createStarted());
-            else if (performanceData.isCollectExecutionTime())
+            } else if (performanceData.isCollectExecutionTime())
                 performanceData.setExecutionStopWatch(Stopwatch.createStarted());
 
             NetParser.NetRow row = (NetParser.NetRow) performanceData.collectNetBenchmarks();
@@ -132,6 +132,14 @@ public class PerformanceListener implements WebDriverListener {
 
     public static void setFlowName(String flowName) {
         PerformanceListener.flowName = flowName;
+    }
+
+    public static String getLoginMethodName() {
+        return loginMethodName;
+    }
+
+    public static void setLoginMethodName(String loginMethodName) {
+        PerformanceListener.loginMethodName = loginMethodName;
     }
 }
 

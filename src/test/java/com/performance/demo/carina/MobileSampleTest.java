@@ -18,6 +18,7 @@ package com.performance.demo.carina;
 import com.performance.demo.IPerformanceTest;
 import com.performance.demo.annotations.PerformanceTest;
 import com.performance.demo.pages.common.*;
+import com.performance.demo.performance.aop.LoginService;
 import com.zebrunner.agent.core.annotation.TestLabel;
 import com.zebrunner.carina.core.IAbstractTest;
 import com.zebrunner.carina.core.registrar.ownership.MethodOwner;
@@ -27,6 +28,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerformanceTest {
+
+    private LoginService loginService = new LoginService();
 
     @Test()
     @MethodOwner(owner = "jovchinnikova")
@@ -49,11 +52,10 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
     @Test()
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "acceptance"})
-    @PerformanceTest(flowName = "ui_elements_flow", userName = "Test_user", collectLoginTime = true, collectExecutionTime = true)
+    @PerformanceTest(flowName = "ui_elements_flow", userName = "Test_user", collectLoginTime = true, collectExecutionTime = true,
+    loginMethodName = "com.performance.demo.performance.aop.LoginService.testLogin()")
     public void testUIElements() {
-        WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
-        LoginPageBase loginPage = welcomePage.clickNextBtn();
-        CarinaDescriptionPageBase carinaDescriptionPage = loginPage.login();
+        CarinaDescriptionPageBase carinaDescriptionPage = loginService.testLogin();
         UIElementsPageBase uiElements = carinaDescriptionPage.navigateToUIElementsPage();
         final String text = "some text";
         final String date = "22/10/2018";
@@ -71,6 +73,11 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
         Assert.assertTrue(uiElements.isFemaleRadioButtonSelected(), "Female radio button was not selected!");
         /*uiElements.clickOnOtherRadioButton();
         Assert.assertTrue(uiElements.isOthersRadioButtonSelected(), "Others radio button was not selected!");*/
+    }
+
+    @Override
+    public void setConfig(Object service) {
+        loginService = (LoginService) service;
     }
 
 }

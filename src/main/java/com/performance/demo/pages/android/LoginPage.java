@@ -60,7 +60,7 @@ public class LoginPage extends LoginPageBase implements IMobileUtils {
     @Override
     public CarinaDescriptionPageBase clickLoginBtn() {
         loginBtn.click();
-        PerformanceListener.collectLoginTime();
+        //PerformanceListener.collectLoginTime();
         return initPage(getDriver(), CarinaDescriptionPageBase.class);
     }
 
