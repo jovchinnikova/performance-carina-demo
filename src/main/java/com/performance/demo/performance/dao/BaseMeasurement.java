@@ -7,6 +7,8 @@ import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.webdriver.IDriverPool;
 
 import java.time.Instant;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // class for avoiding writeMeasurement() method duplication
 // for each type of measurement we want to persist
@@ -44,7 +46,7 @@ public class BaseMeasurement implements IDriverPool {
 
     public BaseMeasurement(String flowName, Instant time, String userName) {
         this.osVersion = getDevice().getOsVersion();
-        this.appVersion = R.CONFIG.get("app_version");
+        this.appVersion = cutAppVersionIfNecessary();
         this.deviceName = getDevice().getName();
         this.platformName = R.CONFIG.get("capabilities.platformName").toUpperCase();
         this.flowName = flowName;
@@ -53,6 +55,20 @@ public class BaseMeasurement implements IDriverPool {
         this.userName = userName;
         this.runId = CurrentTestRun.getId().orElse(0L);
         this.testId = CurrentTest.getId().orElse(0L);
+    }
+
+    public static String cutAppVersionIfNecessary() {
+        String appVersionRegex = R.TESTDATA.get("app_version_regex");
+        String version = R.CONFIG.get("app_version");
+        String result = version;
+        if (!appVersionRegex.isEmpty()) {
+            Pattern appVersionPattern = Pattern.compile(appVersionRegex);
+            Matcher matcher = appVersionPattern.matcher(version);
+            if (matcher.matches()) {
+                result = matcher.group(1);
+            }
+        }
+        return result;
     }
 
     public String getOsVersion() {

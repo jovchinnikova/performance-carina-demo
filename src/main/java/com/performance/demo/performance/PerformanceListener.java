@@ -1,6 +1,7 @@
 package com.performance.demo.performance;
 
 import com.google.common.base.Stopwatch;
+import com.performance.demo.performance.dao.BaseMeasurement;
 import com.performance.demo.utils.parser.NetParser;
 import com.zebrunner.agent.core.registrar.Artifact;
 import com.zebrunner.agent.core.registrar.CurrentTestRun;
@@ -112,7 +113,7 @@ public class PerformanceListener implements WebDriverListener {
     private static String generateDashboardUrl() {
         long beginEpochMilli = performanceData.getBeginEpochMilli();
         long endEpochMilli = performanceData.getEndEpochMilli();
-        String appVersion = R.CONFIG.get("app_version");
+        String appVersion = BaseMeasurement.cutAppVersionIfNecessary();
         String deviceVersion = performanceData.getDevice().getOsVersion();
         String platformName = R.CONFIG.get("capabilities.platformName").toUpperCase();
         String env = R.CONFIG.get("env");
