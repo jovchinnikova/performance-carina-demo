@@ -2,13 +2,11 @@ package com.performance.demo;
 
 import com.performance.demo.annotations.PerformanceTest;
 import com.performance.demo.performance.PerformanceListener;
+import com.performance.demo.utils.GrafanaUtil;
 import com.zebrunner.carina.core.IAbstractTest;
 import com.zebrunner.carina.utils.R;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.*;
 
 import java.lang.reflect.Method;
 
@@ -38,6 +36,6 @@ public interface IPerformanceTest extends IAbstractTest {
 
     @AfterSuite
     default void attachPerformanceLinkToTestRun() {
-        PerformanceListener.attachPerformanceLinkToTestRun();
+        GrafanaUtil.attachPerformanceLinkToTestRun();
     }
 }

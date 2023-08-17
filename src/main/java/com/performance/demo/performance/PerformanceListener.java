@@ -1,32 +1,14 @@
 package com.performance.demo.performance;
 
 import com.google.common.base.Stopwatch;
-import com.performance.demo.performance.dao.BaseMeasurement;
+import com.performance.demo.utils.GrafanaUtil;
 import com.performance.demo.utils.parser.NetParser;
-import com.zebrunner.agent.core.registrar.Artifact;
-import com.zebrunner.agent.core.registrar.CurrentTestRun;
 import com.zebrunner.carina.utils.Configuration;
-import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.events.WebDriverListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
 
 public class PerformanceListener implements WebDriverListener {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    private static final String PERFORMANCE_DASHBOARD = "Performance dashboard";
-    private static final boolean ATTACH_LINKS = Boolean.parseBoolean(R.TESTDATA.get("attach_grafana_links"));
-    private static final String RUN_URL = R.TESTDATA.get("grafana_run_url");
-    private static final String GRAFANA_TOKEN = R.TESTDATA.getDecrypted("grafana_token");
-    private static final String GRAFANA_HOST = R.TESTDATA.get("grafana_host");
-    private static final String TEST_URL = R.TESTDATA.get("grafana_test_url");
-
-    private static Long runId;
 
     private static String flowName;
     private static PerformanceData performanceData;
@@ -39,7 +21,6 @@ public class PerformanceListener implements WebDriverListener {
             performanceData = new PerformanceData();
             performanceData.setUserName(userName);
             setFlowName(flowName);
-            runId = CurrentTestRun.getId().orElse(0L);
             performanceData.setCollectLoginTime(isCollectLoginTime);
             performanceData.setCollectExecutionTime(isCollectExecutionTime);
             startTracking();
@@ -65,7 +46,7 @@ public class PerformanceListener implements WebDriverListener {
                 performanceData.collectExecutionTime(flowName);
 
             performanceData.collectBenchmarks(flowName);
-            attachPerformanceLinkToTest();
+            GrafanaUtil.attachPerformanceLinkToTest();
         }
     }
 
@@ -87,9 +68,9 @@ public class PerformanceListener implements WebDriverListener {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 performanceData.setLoginStopwatch(stopwatch);
                 performanceData.setExecutionStopWatch(stopwatch);
-            } else if (performanceData.isCollectLoginTime())
+            } else if (performanceData.isCollectLoginTime()) {
                 performanceData.setLoginStopwatch(Stopwatch.createStarted());
-            else if (performanceData.isCollectExecutionTime())
+            } else if (performanceData.isCollectExecutionTime())
                 performanceData.setExecutionStopWatch(Stopwatch.createStarted());
 
             NetParser.NetRow row = (NetParser.NetRow) performanceData.collectNetBenchmarks();
@@ -97,33 +78,7 @@ public class PerformanceListener implements WebDriverListener {
         }
     }
 
-    private static void attachPerformanceLinkToTest() {
-        if (ATTACH_LINKS && performanceData.isMatchCount()) {
-            String dashboardUrl = generateDashboardUrl();
-            LOGGER.info("DASHBOARD URL: {}", dashboardUrl);
-            Artifact.attachReferenceToTest(PERFORMANCE_DASHBOARD, dashboardUrl);
-        }
-    }
-
-    public static void attachPerformanceLinkToTestRun() {
-        if (ATTACH_LINKS)
-            Artifact.attachReferenceToTestRun(PERFORMANCE_DASHBOARD, String.format(RUN_URL, GRAFANA_HOST, runId));
-    }
-
-    private static String generateDashboardUrl() {
-        long beginEpochMilli = performanceData.getBeginEpochMilli();
-        long endEpochMilli = performanceData.getEndEpochMilli();
-        String appVersion = BaseMeasurement.cutAppVersionIfNecessary();
-        String deviceVersion = performanceData.getDevice().getOsVersion();
-        String platformName = R.CONFIG.get("capabilities.platformName").toUpperCase();
-        String env = R.CONFIG.get("env");
-        String deviceName = performanceData.getDevice().getName();
-        String userName = performanceData.getUserName();
-        return String.format(TEST_URL, GRAFANA_HOST, beginEpochMilli, endEpochMilli, appVersion, deviceVersion,
-                platformName, env, deviceName, flowName, userName);
-    }
-
-    public PerformanceData getPerformanceData() {
+    public static PerformanceData getPerformanceData() {
         return performanceData;
     }
 
