@@ -21,7 +21,6 @@ public class GrafanaUtil {
     private static final String PERFORMANCE_DASHBOARD = "Performance dashboard";
     private static final boolean ATTACH_LINKS = Boolean.parseBoolean(R.TESTDATA.get("attach_grafana_links"));
     private static final String RUN_URL = R.TESTDATA.get("grafana_run_url");
-    private static final String GRAFANA_TOKEN = R.TESTDATA.getDecrypted("grafana_token");
     private static final String TEST_URL = R.TESTDATA.get("grafana_test_url");
 
     private static final PerformanceData performanceData = PerformanceListener.getPerformanceData();
