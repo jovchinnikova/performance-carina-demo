@@ -10,7 +10,7 @@ public enum GrafanaLinkParameter {
     PLATFORM("platform", R.CONFIG.get("capabilities.platformName").toUpperCase()), ENV("environment", R.CONFIG.get("env")),
     DEVICE_NAME("device_name", ""), OS_VERSION("os_version", ""), FLOW("flow", ""),
     USER("user", ""), ORG_ID("org", R.TESTDATA.get("grafana_org_id")), TEST_ID("test_id", 0),
-    RUN_ID("run_id", 0);
+    RUN_ID("run_id", 0), TOKEN("token", R.TESTDATA.getDecrypted("grafana_token"));
 
     private String name;
     private Object value;
