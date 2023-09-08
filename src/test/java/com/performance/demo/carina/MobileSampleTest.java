@@ -28,17 +28,19 @@ import org.testng.annotations.Test;
 
 public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerformanceTest {
 
+    private static final String user = "Test_user";
+
     @Test()
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "regression"})
-    @PerformanceTest(flowName = "login_flow", userName = "Test_user", collectLoginTime = true, collectExecutionTime = false)
+    @PerformanceTest(flowName = "login_flow", userName = user, collectLoginTime = true, collectExecutionTime = false)
     public void testLoginUser() {
         String password = RandomStringUtils.randomAlphabetic(10);
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
         Assert.assertTrue(welcomePage.isPageOpened(), "Welcome page isn't opened");
         LoginPageBase loginPage = welcomePage.clickNextBtn();
         Assert.assertFalse(loginPage.isLoginBtnActive(), "Login button is active when it should be disabled");
-        loginPage.typeName("Test_user");
+        loginPage.typeName(user);
         loginPage.typePassword(password);
         loginPage.selectMaleSex();
         loginPage.checkPrivacyPolicyCheckbox();
@@ -49,7 +51,7 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
     @Test()
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "acceptance"})
-    @PerformanceTest(flowName = "ui_elements_flow", userName = "Test_user", collectLoginTime = true, collectExecutionTime = true)
+    @PerformanceTest(flowName = "ui_elements_flow", userName = user, collectLoginTime = true, collectExecutionTime = true)
     public void testUIElements() {
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
         LoginPageBase loginPage = welcomePage.clickNextBtn();
