@@ -3,9 +3,10 @@ package com.performance.demo.performance;
 import com.google.common.base.Stopwatch;
 import com.performance.demo.utils.GrafanaUtil;
 import com.performance.demo.utils.parser.NetParser;
-import com.zebrunner.carina.utils.Configuration;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
+import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.events.WebDriverListener;
 
 public class PerformanceListener implements WebDriverListener {
@@ -17,7 +18,7 @@ public class PerformanceListener implements WebDriverListener {
      * This method should be used in the beginning of each performance test
      */
     public static void startPerformanceTracking(String flowName, String userName, boolean isCollectLoginTime, boolean isCollectExecutionTime) {
-        if (!SpecialKeywords.IOS.equalsIgnoreCase(Configuration.getPlatform())) {
+        if (!SpecialKeywords.IOS.equalsIgnoreCase(WebDriverConfiguration.getCapability(CapabilityType.PLATFORM_NAME).orElseThrow())) {
             performanceData = new PerformanceData();
             performanceData.setUserName(userName);
             setFlowName(flowName);
