@@ -23,12 +23,9 @@ public class GrafanaUtil {
     private static final String RUN_URL = R.TESTDATA.get("grafana_run_url");
     private static final String TEST_URL = R.TESTDATA.get("grafana_test_url");
 
-    private static final PerformanceData performanceData = PerformanceListener.getPerformanceData();
-    private static final String flowName = PerformanceListener.getFlowName();
-    private static final long runId = CurrentTestRun.getId().orElse(0L);
-    private static final long testId = CurrentTest.getId().orElse(0L);
+    private final PerformanceData performanceData = PerformanceListener.getPerformanceData();
 
-    private static String generateDashboardUrl(DashboardType dashboardType) {
+    private String generateDashboardUrl(DashboardType dashboardType) {
         String urlTemplate = dashboardType.getUrlTemplate();
         Map<String, Object> params = new HashMap<>();
         if (DashboardType.TEST_DASHBOARD.equals(dashboardType)) {
@@ -38,9 +35,9 @@ public class GrafanaUtil {
         GrafanaLinkParameter.OS_VERSION.setValue(performanceData.getDevice().getOsVersion());
         GrafanaLinkParameter.DEVICE_NAME.setValue(performanceData.getDevice().getName());
         GrafanaLinkParameter.USER.setValue(performanceData.getUserName());
-        GrafanaLinkParameter.TEST_ID.setValue(testId);
-        GrafanaLinkParameter.RUN_ID.setValue(runId);
-        GrafanaLinkParameter.FLOW.setValue(flowName);
+        GrafanaLinkParameter.TEST_ID.setValue(CurrentTest.getId().orElse(0L));
+        GrafanaLinkParameter.RUN_ID.setValue(CurrentTestRun.getId().orElse(0L));
+        GrafanaLinkParameter.FLOW.setValue(PerformanceListener.getFlowName());
         for (GrafanaLinkParameter parameter: GrafanaLinkParameter.values()) {
             if (!parameter.getValue().equals(0.0) && !parameter.getValue().equals(""))
                 params.put(parameter.getName(), parameter.getValue());
@@ -49,7 +46,7 @@ public class GrafanaUtil {
 
     }
 
-    public static void attachPerformanceLinkToTest() {
+    public void attachPerformanceLinkToTest() {
         if (ATTACH_LINKS && performanceData.isMatchCount()) {
             String testDashboardUrl = generateDashboardUrl(DashboardType.TEST_DASHBOARD);
             LOGGER.info("TEST DASHBOARD URL: {}", testDashboardUrl);
@@ -57,7 +54,7 @@ public class GrafanaUtil {
         }
     }
 
-    public static void attachPerformanceLinkToTestRun() {
+    public void attachPerformanceLinkToTestRun() {
         if (ATTACH_LINKS) {
             String runDashboardUrl = generateDashboardUrl(DashboardType.RUN_DASHBOARD);
             Artifact.attachReferenceToTestRun(PERFORMANCE_DASHBOARD, runDashboardUrl);

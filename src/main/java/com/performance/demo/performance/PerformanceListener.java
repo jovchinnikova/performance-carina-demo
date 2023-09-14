@@ -1,7 +1,6 @@
 package com.performance.demo.performance;
 
 import com.google.common.base.Stopwatch;
-import com.performance.demo.utils.GrafanaUtil;
 import com.performance.demo.utils.parser.NetParser;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
@@ -47,7 +46,6 @@ public class PerformanceListener implements WebDriverListener {
                 performanceData.collectExecutionTime(flowName);
 
             performanceData.collectBenchmarks(flowName);
-            GrafanaUtil.attachPerformanceLinkToTest();
         }
     }
 
