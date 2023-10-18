@@ -74,7 +74,7 @@ public class PerformanceListener implements WebDriverListener {
             } else if (performanceData.isCollectExecutionTime())
                 performanceData.setExecutionStopWatch(Stopwatch.createStarted());
 
-            NetParser.NetRow row = (NetParser.NetRow) performanceData.collectNetBenchmarks();
+            NetParser.NetRow row = performanceData.collectNetBenchmarks();
             performanceData.setRowStart(row);
         }
     }

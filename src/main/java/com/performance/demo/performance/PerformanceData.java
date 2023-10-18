@@ -116,7 +116,7 @@ public class PerformanceData implements IDriverPool {
             LOGGER.warn("No data was received for gfx");
         }
 
-        NetParser.NetRow row = (NetParser.NetRow) collectNetBenchmarks();
+        NetParser.NetRow row = collectNetBenchmarks();
 
         subtractNetData(row, instant, flowName);
 
@@ -131,7 +131,7 @@ public class PerformanceData implements IDriverPool {
     /**
      * Old way of getting net data, works only for Android 11 and 12, depends on the bucket start
      */
-    public Row collectNetBenchmarksOld() {
+    public NetParser.NetRow collectNetBenchmarksOld() {
         String id;
         String userId = "";
         String netData = "";
@@ -164,10 +164,17 @@ public class PerformanceData implements IDriverPool {
 
         String[] netOutput = netData.split("\\n");
 
-        return generalParser.parseNet(List.of(netOutput), getDevice(), userId);
+        NetParser.NetRow netRow = (NetParser.NetRow) generalParser.parseNet(List.of(netOutput), getDevice(), userId);
+
+        try {
+            LOGGER.info("Net Row: {}", netRow);
+        } catch (Exception e) {
+            LOGGER.warn("There was an error during parsing of netdata");
+        }
+        return netRow;
     }
 
-    public Row collectNetBenchmarks() {
+    public NetParser.NetRow collectNetBenchmarks() {
         String pid;
         String netData = "";
 
