@@ -51,7 +51,7 @@ public class PerformanceData implements IDriverPool {
 
     public PerformanceData() {
         this.dbService = new InfluxDbService();
-        this.generalParser = new GeneralParser();
+        this.generalParser = new GeneralParser(bundleId);
     }
 
     public enum PerformanceTypes {
