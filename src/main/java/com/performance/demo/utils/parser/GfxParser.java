@@ -27,65 +27,57 @@ public class GfxParser {
         Integer percentile90 = null;
         Integer percentile95 = null;
         Integer percentile99 = null;
-//        String activityName = null;
-//        int activityCounter = 0;
+        boolean foundGfxDel = false;
+        // String activityName = null;
+        // int activityCounter = 0;
 
         for (String line : lines) {
-            Matcher m = GENERAL_INFO_DELIMITER.matcher(line);
-            if (m.find()) {
-                totalFrames = null;
-                jankyFrames = null;
-                percentile90 = null;
-                percentile95 = null;
-                percentile99 = null;
-//                activityName = null;
-//                activityCounter = 0;
+            Matcher matcher = GENERAL_INFO_DELIMITER.matcher(line);
+            if (matcher.find()) {
+                LOGGER.info("Found gfx delimiter");
+                foundGfxDel = true;
             }
 
-            m = TOTAL_FRAMES_PREFIX.matcher(line);
-            if (totalFrames == null && m.matches()) {
-                totalFrames = Integer.parseInt(m.group(1));
+            matcher = TOTAL_FRAMES_PREFIX.matcher(line);
+            if (matcher.matches() && foundGfxDel) {
+                totalFrames = Integer.parseInt(matcher.group(1));
                 LOGGER.info("total_frames: " + totalFrames);
             }
 
-            m = JANKY_FRAMES_PREFIX.matcher(line);
-            if (jankyFrames == null && m.matches()) {
-                jankyFrames = Integer.parseInt(m.group(1));
+            matcher = JANKY_FRAMES_PREFIX.matcher(line);
+            if (matcher.matches() && foundGfxDel) {
+                jankyFrames = Integer.parseInt(matcher.group(1));
                 LOGGER.info("janky_frames: " + jankyFrames);
             }
 
-            m = PERCENTILE_90_PREFIX.matcher(line);
-            if (percentile90 == null && m.matches()) {
-                percentile90 = Integer.parseInt(m.group(1));
+            matcher = PERCENTILE_90_PREFIX.matcher(line);
+            if (matcher.matches() && foundGfxDel) {
+                percentile90 = Integer.parseInt(matcher.group(1));
                 LOGGER.info("90_p: " + percentile90);
             }
 
-            m = PERCENTILE_95_PREFIX.matcher(line);
-            if (percentile95 == null && m.matches()) {
-                percentile95 = Integer.parseInt(m.group(1));
+            matcher = PERCENTILE_95_PREFIX.matcher(line);
+            if (matcher.matches() && foundGfxDel) {
+                percentile95 = Integer.parseInt(matcher.group(1));
                 LOGGER.info("95_p: " + percentile95);
             }
 
-            m = PERCENTILE_99_PREFIX.matcher(line);
-            if (percentile99 == null && m.matches()) {
-                percentile99 = Integer.parseInt(m.group(1));
+            matcher = PERCENTILE_99_PREFIX.matcher(line);
+            if (matcher.matches() && foundGfxDel) {
+                percentile99 = Integer.parseInt(matcher.group(1));
                 LOGGER.info("99_p: " + percentile99);
             }
 
-//            m = ACTIVITY_PREFIX.matcher(line);
-//            if (activityName == null && m.matches()) {
-//                activityName = m.group(1);
-//                activityCounter++;
-//                LOGGER.info("activityName: " + activityName);
-//            }
+            // matcher = ACTIVITY_PREFIX.matcher(line);
+            // if (activityName == null && matcher.matches()) {
+            // activityName = matcher.group(1);
+            // activityCounter++;
+            // LOGGER.info("activityName: " + activityName);
+            // }
 
             if (totalFrames != null && jankyFrames != null && percentile90 != null && percentile95 != null && percentile99 != null) {
                 gfxRow = new GfxRow(totalFrames, jankyFrames, percentile90, percentile95, percentile99);
-                totalFrames = null;
-                jankyFrames = null;
-                percentile90 = null;
-                percentile95 = null;
-                percentile99 = null;
+                break;
             }
         }
 
@@ -99,8 +91,8 @@ public class GfxParser {
         private int percentile90;
         private int percentile95;
         private int percentile99;
-        //private String activityName;
-        //private List<ProfileData> profileData;
+        // private String activityName;
+        // private List<ProfileData> profileData;
 
         public GfxRow(int totalFrames, int jankyFrames, int percentile90, int percentile95, int percentile99) {
             this.totalFrames = totalFrames;
@@ -108,7 +100,7 @@ public class GfxParser {
             this.percentile90 = percentile90;
             this.percentile95 = percentile95;
             this.percentile99 = percentile99;
-            //this.activityName = activityName;
+            // this.activityName = activityName;
         }
 
         public int getTotalFrames() {

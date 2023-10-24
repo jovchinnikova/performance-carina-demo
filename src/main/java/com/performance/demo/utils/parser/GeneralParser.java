@@ -1,19 +1,25 @@
 package com.performance.demo.utils.parser;
 
+import java.util.List;
+
 import com.performance.demo.performance.PerformanceData;
 import com.zebrunner.carina.webdriver.device.Device;
 
-import java.util.List;
-
 public class GeneralParser {
+
+    private String bundleId;
+
+    public GeneralParser(String bundleId) {
+        this.bundleId = bundleId;
+    }
 
     public Row parse(List<String> lines, PerformanceData.PerformanceTypes performanceTypes) {
         switch (performanceTypes) {
             case MEM: {
                 if (lines.contains(MemParser2.PSS_DELIMITER.toString())) {
-                    return new MemParser2().parse(lines);
+                    return new MemParser2().parse(lines, bundleId);
                 } else {
-                    return new MemParser().parse(lines);
+                    return new MemParser().parse(lines, bundleId);
                 }
             }
             case GFX: {
@@ -33,13 +39,22 @@ public class GeneralParser {
 
     /**
      * Old method for parsing net data received as a result of the method
-     * collectNetBenchmarks(WebDriver driver, Device device)
+     * collectNetBenchmarksOld() from PerformanceData
      * Works only for Android 11 and 12
      */
     public Row parseNet(List<String> lines, Device device, String userId) {
         if ("11".equals(device.getOsVersion()) || "12".equals(device.getOsVersion())) {
             return new NetParser().parse(lines, userId);
-        } else return new Row() {
-        };
+        } else
+            return new Row() {
+            };
+    }
+
+    public String getBundleId() {
+        return bundleId;
+    }
+
+    public void setBundleId(String bundleId) {
+        this.bundleId = bundleId;
     }
 }
