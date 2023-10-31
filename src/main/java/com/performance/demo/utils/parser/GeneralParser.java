@@ -2,18 +2,18 @@ package com.performance.demo.utils.parser;
 
 import java.util.List;
 
-import com.performance.demo.performance.PerformanceData;
+import com.performance.demo.performance.AdbPerformanceCollector;
 import com.zebrunner.carina.webdriver.device.Device;
 
 public class GeneralParser {
 
-    private String bundleId;
+    private final String bundleId;
 
     public GeneralParser(String bundleId) {
         this.bundleId = bundleId;
     }
 
-    public Row parse(List<String> lines, PerformanceData.PerformanceTypes performanceTypes) {
+    public Row parse(List<String> lines, AdbPerformanceCollector.PerformanceTypes performanceTypes) {
         switch (performanceTypes) {
             case MEM: {
                 if (lines.contains(MemParser2.PSS_DELIMITER.toString())) {
@@ -48,13 +48,5 @@ public class GeneralParser {
         } else
             return new Row() {
             };
-    }
-
-    public String getBundleId() {
-        return bundleId;
-    }
-
-    public void setBundleId(String bundleId) {
-        this.bundleId = bundleId;
     }
 }

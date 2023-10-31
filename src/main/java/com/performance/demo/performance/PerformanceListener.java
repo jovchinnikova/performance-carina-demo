@@ -11,18 +11,18 @@ import org.openqa.selenium.support.events.WebDriverListener;
 public class PerformanceListener implements WebDriverListener {
 
     private static String flowName;
-    private static PerformanceData performanceData;
+    private static PerformanceCollector performanceCollector;
 
     /**
      * This method should be used in the beginning of each performance test
      */
     public static void startPerformanceTracking(String flowName, String userName, boolean isCollectLoginTime, boolean isCollectExecutionTime) {
         if (!SpecialKeywords.IOS.equalsIgnoreCase(WebDriverConfiguration.getCapability(CapabilityType.PLATFORM_NAME).orElseThrow())) {
-            performanceData = new PerformanceData();
-            performanceData.setUserName(userName);
+            performanceCollector = new AdbPerformanceCollector();
+            performanceCollector.setUserName(userName);
             setFlowName(flowName);
-            performanceData.setCollectLoginTime(isCollectLoginTime);
-            performanceData.setCollectExecutionTime(isCollectExecutionTime);
+            performanceCollector.setCollectLoginTime(isCollectLoginTime);
+            performanceCollector.setCollectExecutionTime(isCollectExecutionTime);
             startTracking();
         }
     }
@@ -31,8 +31,8 @@ public class PerformanceListener implements WebDriverListener {
      * This method is used in authService.loginByUsernameWithPerf
      */
     public static void collectLoginTime() {
-        if (flowName != null && (performanceData.isCollectLoginTime() && performanceData.isCollectExecutionTime()))
-            performanceData.collectLoginTime(flowName);
+        if (flowName != null && (performanceCollector.isCollectLoginTime() && performanceCollector.isCollectExecutionTime()))
+            performanceCollector.collectLoginTime(flowName);
     }
 
     /**
@@ -40,45 +40,45 @@ public class PerformanceListener implements WebDriverListener {
      */
     public static void collectPerfBenchmarks() {
         if (flowName != null) {
-            if (performanceData.isCollectLoginTime() && !performanceData.isCollectExecutionTime())
-                performanceData.collectLoginTime(flowName);
-            else if (performanceData.isCollectExecutionTime())
-                performanceData.collectExecutionTime(flowName);
+            if (performanceCollector.isCollectLoginTime() && !performanceCollector.isCollectExecutionTime())
+                performanceCollector.collectLoginTime(flowName);
+            else if (performanceCollector.isCollectExecutionTime())
+                performanceCollector.collectExecutionTime(flowName);
 
-            performanceData.collectBenchmarks(flowName);
+            performanceCollector.collectBenchmarks(flowName);
         }
     }
 
     @Override
     public void afterClick(WebElement element) {
         if (flowName != null)
-            performanceData.collectSnapshotBenchmarks(flowName);
+            performanceCollector.collectSnapshotBenchmarks(flowName);
     }
 
     @Override
     public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
         if (flowName != null)
-            performanceData.collectSnapshotBenchmarks(flowName);
+            performanceCollector.collectSnapshotBenchmarks(flowName);
     }
 
     private static void startTracking() {
         if (flowName != null) {
-            if (performanceData.isCollectLoginTime() && performanceData.isCollectExecutionTime()) {
+            if (performanceCollector.isCollectLoginTime() && performanceCollector.isCollectExecutionTime()) {
                 Stopwatch stopwatch = Stopwatch.createStarted();
-                performanceData.setLoginStopwatch(stopwatch);
-                performanceData.setExecutionStopWatch(stopwatch);
-            } else if (performanceData.isCollectLoginTime()) {
-                performanceData.setLoginStopwatch(Stopwatch.createStarted());
-            } else if (performanceData.isCollectExecutionTime())
-                performanceData.setExecutionStopWatch(Stopwatch.createStarted());
+                performanceCollector.setLoginStopwatch(stopwatch);
+                performanceCollector.setExecutionStopWatch(stopwatch);
+            } else if (performanceCollector.isCollectLoginTime()) {
+                performanceCollector.setLoginStopwatch(Stopwatch.createStarted());
+            } else if (performanceCollector.isCollectExecutionTime())
+                performanceCollector.setExecutionStopWatch(Stopwatch.createStarted());
 
-            NetParser.NetRow row = performanceData.collectNetBenchmarks();
-            performanceData.setRowStart(row);
+            NetParser.NetRow row = performanceCollector.collectNetBenchmarks();
+            performanceCollector.setRowStart(row);
         }
     }
 
-    public static PerformanceData getPerformanceData() {
-        return performanceData;
+    public static PerformanceCollector getPerformanceCollector() {
+        return performanceCollector;
     }
 
     public static String getFlowName() {

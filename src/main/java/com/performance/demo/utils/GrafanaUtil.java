@@ -1,6 +1,6 @@
 package com.performance.demo.utils;
 
-import com.performance.demo.performance.PerformanceData;
+import com.performance.demo.performance.PerformanceCollector;
 import com.performance.demo.performance.PerformanceListener;
 import com.zebrunner.agent.core.registrar.Artifact;
 import com.zebrunner.agent.core.registrar.CurrentTest;
@@ -23,22 +23,22 @@ public class GrafanaUtil {
     private static final String RUN_URL = R.TESTDATA.get("grafana_run_url");
     private static final String TEST_URL = R.TESTDATA.get("grafana_test_url");
 
-    private final PerformanceData performanceData = PerformanceListener.getPerformanceData();
+    private final PerformanceCollector performanceCollector = PerformanceListener.getPerformanceCollector();
 
     private String generateDashboardUrl(DashboardType dashboardType) {
         String urlTemplate = dashboardType.getUrlTemplate();
         Map<String, Object> params = new HashMap<>();
         if (DashboardType.TEST_DASHBOARD.equals(dashboardType)) {
-            GrafanaLinkParameter.START_TIME.setValue(performanceData.getBeginEpochMilli());
-            GrafanaLinkParameter.END_TIME.setValue(performanceData.getEndEpochMilli());
+            GrafanaLinkParameter.START_TIME.setValue(performanceCollector.getBeginEpochMilli());
+            GrafanaLinkParameter.END_TIME.setValue(performanceCollector.getEndEpochMilli());
         }
-        GrafanaLinkParameter.OS_VERSION.setValue(performanceData.getDevice().getOsVersion());
-        GrafanaLinkParameter.DEVICE_NAME.setValue(performanceData.getDevice().getName());
-        GrafanaLinkParameter.USER.setValue(performanceData.getUserName());
+        GrafanaLinkParameter.OS_VERSION.setValue(performanceCollector.getDevice().getOsVersion());
+        GrafanaLinkParameter.DEVICE_NAME.setValue(performanceCollector.getDevice().getName());
+        GrafanaLinkParameter.USER.setValue(performanceCollector.getUserName());
         GrafanaLinkParameter.TEST_ID.setValue(CurrentTest.getId().orElse(0L));
         GrafanaLinkParameter.RUN_ID.setValue(CurrentTestRun.getId().orElse(0L));
         GrafanaLinkParameter.FLOW.setValue(PerformanceListener.getFlowName());
-        for (GrafanaLinkParameter parameter: GrafanaLinkParameter.values()) {
+        for (GrafanaLinkParameter parameter : GrafanaLinkParameter.values()) {
             if (!parameter.getValue().equals(0.0) && !parameter.getValue().equals(""))
                 params.put(parameter.getName(), parameter.getValue());
         }
@@ -47,7 +47,7 @@ public class GrafanaUtil {
     }
 
     public void attachPerformanceLinkToTest() {
-        if (ATTACH_LINKS && performanceData.isMatchCount()) {
+        if (ATTACH_LINKS && performanceCollector.isMatchCount()) {
             String testDashboardUrl = generateDashboardUrl(DashboardType.TEST_DASHBOARD);
             LOGGER.info("TEST DASHBOARD URL: {}", testDashboardUrl);
             Artifact.attachReferenceToTest(PERFORMANCE_DASHBOARD, testDashboardUrl);
