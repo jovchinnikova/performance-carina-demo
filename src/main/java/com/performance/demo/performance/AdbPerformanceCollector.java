@@ -1,20 +1,30 @@
 package com.performance.demo.performance;
 
-import com.google.common.collect.ImmutableMap;
+import java.lang.invoke.MethodHandles;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.performance.demo.performance.dao.Gfx;
 import com.performance.demo.performance.dao.Network;
-import com.performance.demo.utils.parser.*;
-import com.zebrunner.carina.webdriver.IDriverPool;
-import io.appium.java_client.android.HasSupportedPerformanceDataType;
+import com.performance.demo.utils.parser.CoreParser;
+import com.performance.demo.utils.parser.GeneralParser;
+import com.performance.demo.utils.parser.GfxParser;
+import com.performance.demo.utils.parser.MemParser;
+import com.performance.demo.utils.parser.NetParser;
 import org.openqa.selenium.HasCapabilities;
 import org.openqa.selenium.JavascriptExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
-import java.time.Instant;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.collect.ImmutableMap;
+import com.zebrunner.carina.webdriver.IDriverPool;
+
+import io.appium.java_client.android.HasSupportedPerformanceDataType;
 
 public class AdbPerformanceCollector extends PerformanceCollector implements IDriverPool {
 
@@ -25,6 +35,12 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     private final String cpuCommand = generateCpuCommand();
     private final String errorOutput = String.format("No process found for: %s%n", bundleId);
     private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
+
+    private NetParser.NetRow netRowStart;
+    private NetParser.NetRow netRowEnd;
+
+    private int cpuQuantity = 0;
+    private int memQuantity = 0;
 
     public AdbPerformanceCollector() {
         super();
@@ -48,7 +64,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     }
 
     @Override
-    public Double collectCpuBenchmarks() {
+    protected Double collectCpuBenchmarks() {
         String cpuOutput = "";
 
         try {
@@ -131,7 +147,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     }
 
     @Override
-    public NetParser.NetRow collectNetBenchmarks() {
+    public void collectNetBenchmarks() {
         String pid;
         String netData = "";
 
@@ -157,18 +173,22 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         } catch (Exception e) {
             LOGGER.warn("There was an error during parsing of netdata");
         }
-        return netRow;
+
+        if (netRowStart == null) {
+            netRowStart = netRow;
+        } else {
+            netRowEnd = netRow;
+        }
     }
 
-    @Override
-    protected void subtractNetData(NetParser.NetRow rowEnd, Instant instant, String flowName) {
+    private void subtractNetData(Instant instant, String flowName) {
         try {
-            int rbResult = (int) (rowEnd.getRb() - rowStart.getRb());
-            int rpResult = (int) (rowEnd.getRp() - rowStart.getRp());
-            int tbResult = (int) (rowEnd.getTb() - rowStart.getTb());
-            int tpResult = (int) (rowEnd.getTp() - rowStart.getTp());
+            int rbResult = (int) (netRowEnd.getRb() - netRowStart.getRb());
+            int rpResult = (int) (netRowEnd.getRp() - netRowStart.getRp());
+            int tbResult = (int) (netRowEnd.getTb() - netRowStart.getTb());
+            int tpResult = (int) (netRowEnd.getTp() - netRowStart.getTp());
 
-            if (rowStart.getSt() == rowEnd.getSt()) {
+            if (netRowStart.getSt() == netRowEnd.getSt()) {
                 if (rbResult != 0 && rpResult != 0 && tbResult != 0 && tpResult != 0) {
                     allBenchmarks.add(new Network(
                             rbResult, rpResult, tbResult, tpResult,
@@ -182,6 +202,51 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         } catch (Exception e) {
             LOGGER.warn("No network data was received for the start or the end of the test");
         }
+    }
+
+    @Override
+    public boolean collectAllBenchmarks(String flowName) {
+        Instant instant = Instant.now();
+
+        GfxParser.GfxRow r = collectGfxBenchmarks();
+
+        try {
+            LOGGER.info("GFX Row: {}", r);
+            allBenchmarks.add(new Gfx(
+                    r.getTotalFrames(),
+                    r.getJankyFrames(),
+                    r.getPercentile90(),
+                    r.getPercentile95(),
+                    r.getPercentile99(),
+                    instant,
+                    flowName,
+                    userName));
+        } catch (Exception e) {
+            LOGGER.warn("No data was received for gfx");
+        }
+
+        collectNetBenchmarks();
+        subtractNetData(instant, flowName);
+
+        boolean isAllDataCollected = false;
+
+        int actionCount;
+        if (collectLoginTime && collectExecutionTime) {
+            actionCount = cpuQuantity + memQuantity + 4;
+        } else if (collectLoginTime || collectExecutionTime) {
+            actionCount = cpuQuantity + memQuantity + 3;
+        } else {
+            actionCount = cpuQuantity + memQuantity + 2;
+            LOGGER.warn("No time duration was collected during test execution");
+        }
+
+        int benchmarkCount = allBenchmarks.size();
+
+        LOGGER.info(String.format("Action count: %s benchmark count: %s", actionCount, benchmarkCount));
+        if (actionCount == benchmarkCount)
+            isAllDataCollected = true;
+
+        return isAllDataCollected;
     }
 
     /**
@@ -260,5 +325,24 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         return readableData;
     }
 
-}
+    public GeneralParser getGeneralParser() {
+        return generalParser;
+    }
 
+    public String getCpuCommand() {
+        return cpuCommand;
+    }
+
+    public String getBundleId() {
+        return bundleId;
+    }
+
+    public String getErrorOutput() {
+        return errorOutput;
+    }
+
+    public String getPidCommand() {
+        return pidCommand;
+    }
+
+}

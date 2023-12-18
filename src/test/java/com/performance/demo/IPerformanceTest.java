@@ -31,7 +31,7 @@ public interface IPerformanceTest extends IAbstractTest {
     @AfterMethod
     default void collectPerformance(ITestResult iTestResult, Method method) {
         if (iTestResult.getStatus() == 1 && method.isAnnotationPresent(PerformanceTest.class)) {
-            PerformanceListener.collectPerfBenchmarks();
+            PerformanceListener.stopPerformanceTracking();
             new GrafanaUtil().attachPerformanceLinkToTest();
         }
     }

@@ -1,17 +1,17 @@
 package com.performance.demo.performance;
 
-import com.google.common.base.Stopwatch;
-import com.performance.demo.utils.parser.NetParser;
-import com.zebrunner.carina.utils.commons.SpecialKeywords;
-import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.events.WebDriverListener;
 
+import com.google.common.base.Stopwatch;
+import com.zebrunner.carina.utils.commons.SpecialKeywords;
+import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
+
 public class PerformanceListener implements WebDriverListener {
 
-    private static String flowName;
     private static PerformanceCollector performanceCollector;
+    private static String flowName;
 
     /**
      * This method should be used in the beginning of each performance test
@@ -38,14 +38,14 @@ public class PerformanceListener implements WebDriverListener {
     /**
      * This method should be used in the end of each performance test
      */
-    public static void collectPerfBenchmarks() {
+    public static void stopPerformanceTracking() {
         if (flowName != null) {
             if (performanceCollector.isCollectLoginTime() && !performanceCollector.isCollectExecutionTime())
                 performanceCollector.collectLoginTime(flowName);
             else if (performanceCollector.isCollectExecutionTime())
                 performanceCollector.collectExecutionTime(flowName);
 
-            performanceCollector.collectBenchmarks(flowName);
+            performanceCollector.collectAndWritePerformance(flowName);
         }
     }
 
@@ -67,18 +67,21 @@ public class PerformanceListener implements WebDriverListener {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 performanceCollector.setLoginStopwatch(stopwatch);
                 performanceCollector.setExecutionStopWatch(stopwatch);
-            } else if (performanceCollector.isCollectLoginTime()) {
+            } else if (performanceCollector.isCollectLoginTime())
                 performanceCollector.setLoginStopwatch(Stopwatch.createStarted());
-            } else if (performanceCollector.isCollectExecutionTime())
+            else if (performanceCollector.isCollectExecutionTime())
                 performanceCollector.setExecutionStopWatch(Stopwatch.createStarted());
 
-            NetParser.NetRow row = performanceCollector.collectNetBenchmarks();
-            performanceCollector.setRowStart(row);
+            performanceCollector.collectNetBenchmarks();
         }
     }
 
     public static PerformanceCollector getPerformanceCollector() {
         return performanceCollector;
+    }
+
+    public static void setPerformanceCollector(PerformanceCollector performanceCollector) {
+        PerformanceListener.performanceCollector = performanceCollector;
     }
 
     public static String getFlowName() {
@@ -89,4 +92,3 @@ public class PerformanceListener implements WebDriverListener {
         PerformanceListener.flowName = flowName;
     }
 }
-

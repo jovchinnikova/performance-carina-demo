@@ -47,7 +47,7 @@ public class GrafanaUtil {
     }
 
     public void attachPerformanceLinkToTest() {
-        if (ATTACH_LINKS && performanceCollector.isMatchCount()) {
+        if (ATTACH_LINKS && performanceCollector.isAllDataCollected()) {
             String testDashboardUrl = generateDashboardUrl(DashboardType.TEST_DASHBOARD);
             LOGGER.info("TEST DASHBOARD URL: {}", testDashboardUrl);
             Artifact.attachReferenceToTest(PERFORMANCE_DASHBOARD, testDashboardUrl);

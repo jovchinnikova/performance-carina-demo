@@ -2,19 +2,23 @@ package com.performance.demo.performance;
 
 import java.lang.invoke.MethodHandles;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.performance.demo.performance.dao.*;
+import com.performance.demo.performance.dao.BaseMeasurement;
+import com.performance.demo.performance.dao.Cpu;
+import com.performance.demo.performance.dao.ExecutionTime;
+import com.performance.demo.performance.dao.LoginTime;
+import com.performance.demo.performance.dao.Memory;
 import com.performance.demo.performance.service.InfluxDbService;
 import com.performance.demo.utils.parser.GfxParser;
 import com.performance.demo.utils.parser.MemParser;
-import com.performance.demo.utils.parser.NetParser;
-import com.zebrunner.carina.webdriver.IDriverPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
+import com.zebrunner.carina.webdriver.IDriverPool;
 
 public abstract class PerformanceCollector implements IDriverPool {
 
@@ -24,19 +28,15 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     private boolean epochSeconds = false;
     private long beginEpochMilli;
-    private long endEpochMilli;
+    protected long endEpochMilli;
     protected List<BaseMeasurement> allBenchmarks = new ArrayList<>();
-    protected int cpuQuantity = 0;
-    protected int memQuantity = 0;
     protected boolean cpuNotNull;
-    private boolean isMatchCount;
-    private boolean collectLoginTime;
-    private boolean collectExecutionTime;
+    protected boolean isAllDataCollected;
+    protected boolean collectLoginTime;
+    protected boolean collectExecutionTime;
 
     private Stopwatch loginStopwatch;
     private Stopwatch executionStopWatch;
-
-    protected NetParser.NetRow rowStart;
 
     protected String userName;
 
@@ -69,38 +69,6 @@ public abstract class PerformanceCollector implements IDriverPool {
         }
     }
 
-    public void collectBenchmarks(String flowName) {
-        Instant instant = Instant.now();
-
-        GfxParser.GfxRow r = collectGfxBenchmarks();
-
-        try {
-            LOGGER.info("GFX Row: {}", r);
-            allBenchmarks.add(new Gfx(
-                    r.getTotalFrames(),
-                    r.getJankyFrames(),
-                    r.getPercentile90(),
-                    r.getPercentile95(),
-                    r.getPercentile99(),
-                    instant,
-                    flowName,
-                    userName));
-        } catch (Exception e) {
-            LOGGER.warn("No data was received for gfx");
-        }
-
-        NetParser.NetRow row = collectNetBenchmarks();
-
-        subtractNetData(row, instant, flowName);
-
-        endEpochMilli = instant.toEpochMilli() + 3000;
-
-        isMatchCount = dbService.writeData(allBenchmarks, cpuQuantity, memQuantity, collectLoginTime, collectExecutionTime);
-
-        if (!isMatchCount)
-            LOGGER.warn("Skipped writing data to db, not all performance data were received during test execution");
-    }
-
     public void collectLoginTime(String flowName) {
         Instant instant = Instant.now();
         LOGGER.info("[ PERFORMANCE INVESTIGATION ] Login took: {}", loginStopwatch);
@@ -118,15 +86,24 @@ public abstract class PerformanceCollector implements IDriverPool {
                 userName));
     }
 
+    public void collectAndWritePerformance(String flowName) {
+        isAllDataCollected = collectAllBenchmarks(flowName);
+        endEpochMilli = Instant.now().toEpochMilli() + 3000;
+        if (isAllDataCollected)
+            dbService.writeData(allBenchmarks);
+        else
+            LOGGER.warn("Skipped writing data to db, not all performance data were received during test execution");
+    }
+
     protected abstract Double collectCpuBenchmarks();
 
     protected abstract MemParser.MemRow collectMemoryBenchmarks();
 
     protected abstract GfxParser.GfxRow collectGfxBenchmarks();
 
-    public abstract NetParser.NetRow collectNetBenchmarks();
+    public abstract void collectNetBenchmarks();
 
-    protected abstract void subtractNetData(NetParser.NetRow rowEnd, Instant instant, String flowName);
+    protected abstract boolean collectAllBenchmarks(String flowName);
 
     public String getUserName() {
         return userName;
@@ -142,22 +119,6 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     public void setAllBenchmarks(List<BaseMeasurement> allBenchmarks) {
         this.allBenchmarks = allBenchmarks;
-    }
-
-    public int getCpuQuantity() {
-        return cpuQuantity;
-    }
-
-    public void setCpuQuantity(int cpuQuantity) {
-        this.cpuQuantity = cpuQuantity;
-    }
-
-    public int getMemQuantity() {
-        return memQuantity;
-    }
-
-    public void setMemQuantity(int memQuantity) {
-        this.memQuantity = memQuantity;
     }
 
     public boolean isCpuNotNull() {
@@ -180,12 +141,12 @@ public abstract class PerformanceCollector implements IDriverPool {
         this.executionStopWatch = executionStopWatch;
     }
 
-    public boolean isMatchCount() {
-        return isMatchCount;
+    public boolean isAllDataCollected() {
+        return isAllDataCollected;
     }
 
-    public void setMatchCount(boolean matchCount) {
-        isMatchCount = matchCount;
+    public void setAllDataCollected(boolean allDataCollected) {
+        isAllDataCollected = allDataCollected;
     }
 
     public long getBeginEpochMilli() {
@@ -218,13 +179,5 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     public void setCollectExecutionTime(boolean collectExecutionTime) {
         this.collectExecutionTime = collectExecutionTime;
-    }
-
-    public NetParser.NetRow getRowStart() {
-        return rowStart;
-    }
-
-    public void setRowStart(NetParser.NetRow rowStart) {
-        this.rowStart = rowStart;
     }
 }
