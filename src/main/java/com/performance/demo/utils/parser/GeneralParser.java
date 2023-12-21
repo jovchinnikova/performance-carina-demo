@@ -1,6 +1,7 @@
 package com.performance.demo.utils.parser;
 
 import java.util.List;
+import java.util.Map;
 
 import com.performance.demo.performance.AdbPerformanceCollector;
 import com.zebrunner.carina.webdriver.device.Device;
@@ -25,9 +26,9 @@ public class GeneralParser {
             case GFX: {
                 return new GfxParser().parse(lines);
             }
-            case NET: {
-                return new NetParser2().parse(lines);
-            }
+            // case NET: {
+            // return new NetParser2().parse(lines);
+            // }
             case CORE: {
                 return new CoreParser().parse(lines);
             }
@@ -35,6 +36,10 @@ public class GeneralParser {
                 return new Row() {
                 };
         }
+    }
+
+    public Map<String, NetParser.NetRow> parseNet(List<String> lines) {
+        return new NetParser2().parseForTwoTypes(lines);
     }
 
     /**
@@ -49,4 +54,9 @@ public class GeneralParser {
             return new Row() {
             };
     }
+
+    public String getBundleId() {
+        return bundleId;
+    }
+
 }

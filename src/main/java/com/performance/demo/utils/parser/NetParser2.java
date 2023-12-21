@@ -18,9 +18,20 @@ public class NetParser2 {
             "\\s(wlan[01]): *(\\d*) *(\\d*) * *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*) *(\\d*)");
 
     public NetParser.NetRow parse(List<String> lines) {
+        String expectedType;
+        Map<String, NetParser.NetRow> netData = parseForTwoTypes(lines);
+        if (netData.size() == 2)
+            expectedType = "wlan1";
+        else
+            expectedType = "wlan0";
+
+        LOGGER.info("Net data type: {}", expectedType);
+        return netData.get(expectedType);
+    }
+
+    public Map<String, NetParser.NetRow> parseForTwoTypes(List<String> lines) {
         int st = 0;
         Map<String, NetParser.NetRow> netData = new HashMap<>();
-        String expectedType;
 
         lines.forEach(line -> {
             Matcher matcher = VALUES.matcher(line);
@@ -35,11 +46,6 @@ public class NetParser2 {
             }
         });
 
-        if (netData.size() == 2)
-            expectedType = "wlan1";
-        else expectedType = "wlan0";
-
-        LOGGER.info("Net data type: {}", expectedType);
-        return netData.get(expectedType);
+        return netData;
     }
 }

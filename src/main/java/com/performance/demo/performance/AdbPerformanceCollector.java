@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,14 +31,17 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    private static final String WLAN0 = "wlan0";
+    private static final String WLAN1 = "wlan1";
+
     private final String bundleId = getAppPackage();
     private final GeneralParser generalParser;
     private final String cpuCommand = generateCpuCommand();
     private final String errorOutput = String.format("No process found for: %s%n", bundleId);
     private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
 
-    private NetParser.NetRow netRowStart;
-    private NetParser.NetRow netRowEnd;
+    private Map<String, NetParser.NetRow> netRowStart;
+    private Map<String, NetParser.NetRow> netRowEnd;
 
     private int cpuQuantity = 0;
     private int memQuantity = 0;
@@ -166,10 +170,10 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
         String[] netOutput = netData.split("\\n");
 
-        NetParser.NetRow netRow = (NetParser.NetRow) generalParser.parse(List.of(netOutput), PerformanceTypes.NET);
+        Map<String, NetParser.NetRow> netRow = generalParser.parseNet(List.of(netOutput));
 
         try {
-            LOGGER.info("Net Row: {}", netRow);
+            netRow.forEach((type, row) -> LOGGER.info("Net data type: {}, Net Row: {}", type, row));
         } catch (Exception e) {
             LOGGER.warn("There was an error during parsing of netdata");
         }
@@ -181,23 +185,42 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         }
     }
 
+    private Network makeSubtraction(NetParser.NetRow rowStart, NetParser.NetRow rowEnd, Instant instant, String flowName) {
+        int rbResult = (int) (rowEnd.getRb() - rowStart.getRb());
+        int rpResult = (int) (rowEnd.getRp() - rowStart.getRp());
+        int tbResult = (int) (rowEnd.getTb() - rowStart.getTb());
+        int tpResult = (int) (rowEnd.getTp() - rowStart.getTp());
+
+        return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName);
+    }
+
     private void subtractNetData(Instant instant, String flowName) {
         try {
-            int rbResult = (int) (netRowEnd.getRb() - netRowStart.getRb());
-            int rpResult = (int) (netRowEnd.getRp() - netRowStart.getRp());
-            int tbResult = (int) (netRowEnd.getTb() - netRowStart.getTb());
-            int tpResult = (int) (netRowEnd.getTp() - netRowStart.getTp());
-
-            if (netRowStart.getSt() == netRowEnd.getSt()) {
-                if (rbResult != 0 && rpResult != 0 && tbResult != 0 && tpResult != 0) {
-                    allBenchmarks.add(new Network(
-                            rbResult, rpResult, tbResult, tpResult,
-                            instant, flowName, userName));
+            Network resultRow;
+            if (netRowStart.size() > 1 && netRowEnd.size() > 1) {
+                Network netWlan0 = makeSubtraction(netRowStart.get(WLAN0), netRowEnd.get(WLAN0), instant, flowName);
+                Network netWlan1 = makeSubtraction(netRowStart.get(WLAN1), netRowEnd.get(WLAN1), instant, flowName);
+                if (netWlan0.getBytesReceived() != 0 && netWlan0.getTransferredBytes() != 0 && netWlan0.getReceivedPackets() != 0
+                        && netWlan0.getTransferredPackets() != 0) {
+                    resultRow = netWlan0;
                 } else {
-                    LOGGER.info("Skipping writing net data to influx because new bucket didn't start");
+                    resultRow = netWlan1;
                 }
             } else {
-                LOGGER.info("Skipping writing net data to influx due to different st values");
+                String expectedType;
+                if (netRowStart.containsKey(WLAN0) && netRowEnd.containsKey(WLAN0)) {
+                    expectedType = WLAN0;
+                } else {
+                    expectedType = WLAN1;
+                }
+                resultRow = makeSubtraction(netRowStart.get(expectedType), netRowEnd.get(expectedType), instant, flowName);
+            }
+
+            if (resultRow.getBytesReceived() != 0 && resultRow.getTransferredBytes() != 0 && resultRow.getReceivedPackets() != 0
+                    && resultRow.getTransferredPackets() != 0) {
+                allBenchmarks.add(resultRow);
+            } else {
+                LOGGER.info("Skipping writing net data to influx because new bucket didn't start");
             }
         } catch (Exception e) {
             LOGGER.warn("No network data was received for the start or the end of the test");
@@ -242,7 +265,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
         int benchmarkCount = allBenchmarks.size();
 
-        LOGGER.info(String.format("Action count: %s benchmark count: %s", actionCount, benchmarkCount));
+        LOGGER.info("Action count: {} benchmark count: {}", actionCount, benchmarkCount);
         if (actionCount == benchmarkCount)
             isAllDataCollected = true;
 
@@ -251,6 +274,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     /**
      * Old way of getting net data, works only for Android 11 and 12, depends on the bucket start
+     * St values should be equal during subtracting
      */
     protected NetParser.NetRow collectNetBenchmarksOld() {
         String id;
