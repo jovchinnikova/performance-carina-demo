@@ -8,6 +8,15 @@ public class Performance {
 
     @JsonProperty("system_performance")
     private SystemPerformance systemPerformance;
+
     @JsonProperty("process_performance")
     private ProcessPerformance processPerformance;
+
+    public SystemPerformance getSystemPerformance() {
+        return systemPerformance;
+    }
+
+    public ProcessPerformance getProcessPerformance() {
+        return processPerformance;
+    }
 }

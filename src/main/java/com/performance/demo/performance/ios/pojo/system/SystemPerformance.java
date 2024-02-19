@@ -8,9 +8,22 @@ public class SystemPerformance {
 
     @JsonProperty("sysmon_monitor")
     private List<SysmonMonitor> sysmonMonitorMetrics;
+
     @JsonProperty("graphics")
     private List<Graphics> graphicsMetrics;
+
     @JsonProperty("netstat")
     private Netstat netstatMetrics;
 
+    public List<SysmonMonitor> getSysmonMonitorMetrics() {
+        return sysmonMonitorMetrics;
+    }
+
+    public List<Graphics> getGraphicsMetrics() {
+        return graphicsMetrics;
+    }
+
+    public List<Event> getNetstatMetrics() {
+        return netstatMetrics.getEvents();
+    }
 }

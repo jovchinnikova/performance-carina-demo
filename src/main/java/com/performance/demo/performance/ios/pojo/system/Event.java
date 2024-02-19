@@ -9,4 +9,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = InterfaceDetectionEvent.class, name = "InterfaceDetectionEvent")})
 public interface Event {
 
+    void convertTime();
+
 }

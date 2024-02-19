@@ -8,4 +8,8 @@ public class Netstat {
 
     @JsonProperty("events")
     private List<Event> events;
+
+    public List<Event> getEvents() {
+        return events;
+    }
 }
