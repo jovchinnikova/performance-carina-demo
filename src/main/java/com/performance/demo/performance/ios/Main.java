@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
         startCollecting();
         try {
-            TimeUnit.SECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(15);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

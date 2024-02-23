@@ -3,20 +3,21 @@ package com.performance.demo.performance.ios.pojo.process;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
+import com.performance.demo.performance.dao.BaseMeasurement;
 
 import java.time.Instant;
 
-@Measurement(name = "Netstat PID")
-public class NetstatPid {
+@Measurement(name = "Netstat_pid")
+public class NetstatPid extends BaseMeasurement {
 
-    @Column(tag = true, name = "metricType")
+    @Column(tag = true, name = "metric_type")
     private final String metricType = "Process";
 
     @Column(name = "net.packets.delta")
     @JsonProperty("net.packets.delta")
     private int netPacketsDelta;
 
-    @Column(name = "net.tx.bytes")
+    @Column(name = "tb")
     @JsonProperty("net.tx.bytes")
     private int netTxBytes;
 
@@ -28,15 +29,15 @@ public class NetstatPid {
     @JsonProperty("net.rx.packets.delta")
     private int netRxPacketsDelta;
 
-    @Column(name = "net.tx.packets")
+    @Column(name = "tp")
     @JsonProperty("net.tx.packets")
     private int netTxPackets;
 
-    @Column(name = "net.rx.bytes")
+    @Column(name = "rb")
     @JsonProperty("net.rx.bytes")
     private int netRxBytes;
 
-    @Column(name = "net.bytes")
+    @Column(name = "total_bytes")
     @JsonProperty("net.bytes")
     private int netBytes;
 
@@ -48,7 +49,7 @@ public class NetstatPid {
     @JsonProperty("net.rx.bytes.delta")
     private int netRxBytesDelta;
 
-    @Column(name = "net.rx.packets")
+    @Column(name = "rp")
     @JsonProperty("net.rx.packets")
     private int netRxPackets;
 
@@ -60,7 +61,7 @@ public class NetstatPid {
     @JsonProperty("net.tx.packets.delta")
     private int netTxPacketsDelta;
 
-    @Column(name = "net.packets")
+    @Column(name = "total_packets")
     @JsonProperty("net.packets")
     private int netPackets;
 

@@ -4,17 +4,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
+import com.performance.demo.performance.dao.BaseMeasurement;
 
 import java.time.Instant;
 
 @Measurement(name = "Netstat")
 @JsonRootName("ConnectionDetectionEvent")
-public class ConnectionDetectionEvent implements Event {
+public class ConnectionDetectionEvent extends BaseMeasurement implements Event {
 
-    @Column(tag = true, name = "metricType")
+    @Column(tag = true, name = "metric_type")
     String metricType = "System";
 
-    @Column(tag = true, name = "eventType")
+    @Column(tag = true, name = "event_type")
     String eventType = "ConnectionDetectionEvent";
 
     @Column(name = "interface_index")

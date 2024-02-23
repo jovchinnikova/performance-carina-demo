@@ -5,6 +5,7 @@ import com.zebrunner.agent.core.registrar.CurrentTest;
 import com.zebrunner.agent.core.registrar.CurrentTestRun;
 import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.webdriver.IDriverPool;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.Instant;
 import java.util.regex.Matcher;
@@ -32,8 +33,8 @@ public class BaseMeasurement implements IDriverPool {
     @Column(tag = true, name = "env")
     private String env;
 
-    @Column(timestamp = true)
-    private Instant time;
+//    @Column(timestamp = true)
+//    private Instant time;
 
     @Column(tag = true, name = "username")
     private String userName;
@@ -44,6 +45,16 @@ public class BaseMeasurement implements IDriverPool {
     @Column(tag = true, name = "test_id")
     private Long testId;
 
+    public BaseMeasurement() {
+        this.osVersion = getDevice().getOsVersion();
+        this.appVersion = cutAppVersionIfNecessary();
+        this.deviceName = getDevice().getName();
+        this.platformName = R.CONFIG.get("capabilities.platformName").toUpperCase();
+        this.env = R.CONFIG.get("env");
+        this.runId = CurrentTestRun.getId().orElse(0L);
+        this.testId = CurrentTest.getId().orElse(0L);
+    }
+
     public BaseMeasurement(String flowName, Instant time, String userName) {
         this.osVersion = getDevice().getOsVersion();
         this.appVersion = cutAppVersionIfNecessary();
@@ -51,7 +62,7 @@ public class BaseMeasurement implements IDriverPool {
         this.platformName = R.CONFIG.get("capabilities.platformName").toUpperCase();
         this.flowName = flowName;
         this.env = R.CONFIG.get("env");
-        this.time = time;
+//        this.time = time;
         this.userName = userName;
         this.runId = CurrentTestRun.getId().orElse(0L);
         this.testId = CurrentTest.getId().orElse(0L);
@@ -118,14 +129,14 @@ public class BaseMeasurement implements IDriverPool {
     public void setEnv(String env) {
         this.env = env;
     }
-
-    public Instant getTime() {
-        return time;
-    }
-
-    public void setTime(Instant time) {
-        this.time = time;
-    }
+//
+//    public Instant getTime() {
+//        return time;
+//    }
+//
+//    public void setTime(Instant time) {
+//        this.time = time;
+//    }
 
     public String getUserName() {
         return userName;

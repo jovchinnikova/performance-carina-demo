@@ -3,21 +3,22 @@ package com.performance.demo.performance.ios.pojo.process;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
+import com.performance.demo.performance.dao.BaseMeasurement;
 
 import java.math.BigInteger;
 import java.time.Instant;
 
 @Measurement(name = "SysmonMonitor pid")
-public class SysmonMonitorPid {
+public class SysmonMonitorPid extends BaseMeasurement {
 
-    @Column(tag = true, name = "metricType")
+    @Column(tag = true, name = "metric_type")
     private final String metricType = "Process";
 
-    @Column(name = "numRunning")
+    @Column(name = "num_running")
     @JsonProperty("numRunning")
     private int numRunning;
 
-    @Column(name = "memCompressed")
+    @Column(name = "mem_compressed")
     @JsonProperty("memCompressed")
     private int memCompressed;
 
@@ -25,11 +26,11 @@ public class SysmonMonitorPid {
     @JsonProperty("faults")
     private int faults;
 
-    @Column(name = "appSleep")
+    @Column(name = "app_sleep")
     @JsonProperty("appSleep")
     private boolean appSleep;
 
-    @Column(name = "threadsUser")
+    @Column(name = "threads_user")
     @JsonProperty("threadsUser")
     private BigInteger threadsUser;
 
@@ -37,7 +38,7 @@ public class SysmonMonitorPid {
     @JsonProperty("__sandbox")
     private boolean __sandbox;
 
-    @Column(name = "nfiles")
+    @Column(name = "n_files")
     @JsonProperty("nfiles")
     private int nfiles;
 
@@ -45,15 +46,15 @@ public class SysmonMonitorPid {
     @JsonProperty("name")
     private String name;
 
-    @Column(name = "memAnonPeak")
+    @Column(name = "mem_anon_peak")
     @JsonProperty("memAnonPeak")
     private int memAnonPeak;
 
-    @Column(name = "threadCount")
+    @Column(name = "thread_count")
     @JsonProperty("threadCount")
     private int threadCount;
 
-    @Column(name = "responsibleUniqueID")
+    @Column(name = "responsible_uniqueID")
     @JsonProperty("responsibleUniqueID")
     private int responsibleUniqueID;
 
@@ -65,7 +66,7 @@ public class SysmonMonitorPid {
     @JsonProperty("sysCallsMach")
     private int sysCallsMach;
 
-    @Column(name = "msgSent")
+    @Column(name = "msg_sent")
     @JsonProperty("msgSent")
     private int msgSent;
 
@@ -81,19 +82,19 @@ public class SysmonMonitorPid {
     @JsonProperty("timerWakeBin1")
     private int timerWakeBin1;
 
-    @Column(name = "cowFaults")
+    @Column(name = "cow_faults")
     @JsonProperty("cowFaults")
     private int cowFaults;
 
-    @Column(name = "diskBytesRead")
+    @Column(name = "disk_bytes_read")
     @JsonProperty("diskBytesRead")
     private BigInteger diskBytesRead;
 
-    @Column(name = "memResidentSize")
+    @Column(name = "mem_resident_size")
     @JsonProperty("memResidentSize")
     private int memResidentSize;
 
-    @Column(name = "totalEnergyScore")
+    @Column(name = "total_energy_score")
     @JsonProperty("totalEnergyScore")
     private BigInteger totalEnergyScore;
 
@@ -113,11 +114,11 @@ public class SysmonMonitorPid {
     @JsonProperty("pid")
     private int pid;
 
-    @Column(name = "wiredSize")
+    @Column(name = "wired_size")
     @JsonProperty("wiredSize")
     private int wiredSize;
 
-    @Column(name = "memVirtualSize")
+    @Column(name = "mem_virtual_size")
     @JsonProperty("memVirtualSize")
     private BigInteger memVirtualSize;
 
@@ -129,7 +130,7 @@ public class SysmonMonitorPid {
     @JsonProperty("responsiblePID")
     private int responsiblePID;
 
-    @Column(name = "procAge")
+    @Column(name = "proc_age")
     @JsonProperty("procAge")
     private BigInteger procAge;
 
@@ -137,7 +138,7 @@ public class SysmonMonitorPid {
     @JsonProperty("parentUniqueID")
     private int parentUniqueID;
 
-    @Column(name = "threadsSystem")
+    @Column(name = "threads_system")
     @JsonProperty("threadsSystem")
     private BigInteger threadsSystem;
 
@@ -145,11 +146,11 @@ public class SysmonMonitorPid {
     @JsonProperty("pjobc")
     private int pjobc;
 
-    @Column(name = "diskBytesWritten")
+    @Column(name = "disk_bytes_written")
     @JsonProperty("diskBytesWritten")
     private BigInteger diskBytesWritten;
 
-    @Column(name = "cpuUsage")
+    @Column(name = "cpu_usage")
     @JsonProperty("cpuUsage")
     private String cpuUsage;
 
@@ -165,11 +166,11 @@ public class SysmonMonitorPid {
     @JsonProperty("svgid")
     private int svgid;
 
-    @Column(name = "cpuTotalUser")
+    @Column(name = "cpu_total_user")
     @JsonProperty("cpuTotalUser")
     private BigInteger cpuTotalUser;
 
-    @Column(name = "procStatus")
+    @Column(name = "proc_status")
     @JsonProperty("procStatus")
     private int procStatus;
 
@@ -197,11 +198,11 @@ public class SysmonMonitorPid {
     @JsonProperty("wqBlockedThreads")
     private int wqBlockedThreads;
 
-    @Column(name = "memRPrvt")
+    @Column(name = "mem_prrvt")
     @JsonProperty("memRPrvt")
     private String memRPrvt;
 
-    @Column(name = "memPurgeable")
+    @Column(name = "mem_purgeable")
     @JsonProperty("memPurgeable")
     private int memPurgeable;
 
@@ -217,7 +218,7 @@ public class SysmonMonitorPid {
     @JsonProperty("procXstatus")
     private int procXstatus;
 
-    @Column(name = "cpuTotalSystem")
+    @Column(name = "cpu_total_system")
     @JsonProperty("cpuTotalSystem")
     private BigInteger cpuTotalSystem;
 
@@ -225,7 +226,7 @@ public class SysmonMonitorPid {
     @JsonProperty("wqState")
     private int wqState;
 
-    @Column(name = "memAnon")
+    @Column(name = "mem_anon")
     @JsonProperty("memAnon")
     private int memAnon;
 
@@ -253,19 +254,19 @@ public class SysmonMonitorPid {
     @JsonProperty("uid")
     private int uid;
 
-    @Column(name = "startAbsTime")
+    @Column(name = "start_abs_time")
     @JsonProperty("startAbsTime")
     private BigInteger startAbsTime;
 
-    @Column(name = "msgRecv")
+    @Column(name = "msg_recv")
     @JsonProperty("msgRecv")
     private int msgRecv;
 
-    @Column(name = "memRShrd")
+    @Column(name = "memr_shrd")
     @JsonProperty("memRShrd")
     private String memRShrd;
 
-    @Column(name = "physFootprint")
+    @Column(name = "phys_footprint")
     @JsonProperty("physFootprint")
     private int physFootprint;
 
@@ -277,7 +278,7 @@ public class SysmonMonitorPid {
     @JsonProperty("uniqueID")
     private int uniqueID;
 
-    @Column(name = "sysCallsUnix")
+    @Column(name = "sys_calls_unix")
     @JsonProperty("sysCallsUnix")
     private int sysCallsUnix;
 
@@ -289,11 +290,11 @@ public class SysmonMonitorPid {
     @JsonProperty("procFlags")
     private int procFlags;
 
-    @Column(name = "powerScore")
+    @Column(name = "power_score")
     @JsonProperty("powerScore")
     private int powerScore;
 
-    @Column(name = "ctxSwitch")
+    @Column(name = "ctx_switch")
     @JsonProperty("ctxSwitch")
     private int ctxSwitch;
 
@@ -305,7 +306,7 @@ public class SysmonMonitorPid {
     @JsonProperty("latencyQosTier")
     private int latencyQosTier;
 
-    @Column(name = "avgPowerScore")
+    @Column(name = "avg_power_score")
     @JsonProperty("avgPowerScore")
     private double avgPowerScore;
 

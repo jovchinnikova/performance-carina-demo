@@ -3,86 +3,87 @@ package com.performance.demo.performance.ios.pojo.process;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
+import com.performance.demo.performance.dao.BaseMeasurement;
 
 import java.time.Instant;
 
 @Measurement(name = "Energy")
-public class Energy {
+public class Energy extends BaseMeasurement {
 
     @Column(tag = true, name = "metric_type")
     private String metricType = "Process";
 
-    @Column(name = "energy.overhead")
+    @Column(name = "total_overhead")
     @JsonProperty("energy.overhead")
-    private int overhead;
+    private int totalOverhead;
 
     @Column(name = "kIDEGaugeSecondsSinceInitialQueryKey")
     @JsonProperty("kIDEGaugeSecondsSinceInitialQueryKey")
     private int kIDEGaugeSecondsSinceInitialQueryKey;
 
-    @Column(name = "energy.version")
+    @Column(name = "version")
     @JsonProperty("energy.version")
     private int version;
 
-    @Column(name = "energy.networkning.overhead")
+    @Column(name = "networking_overhead")
     @JsonProperty("energy.networkning.overhead")
     private int networkingOverhead;
 
-    @Column(name = "energy.appstate.cost")
+    @Column(name = "appState_cost")
     @JsonProperty("energy.appstate.cost")
     private int appStateCost;
 
-    @Column(name = "energy.location.overhead")
+    @Column(name = "location_overhead")
     @JsonProperty("energy.location.overhead")
     private int locationOverhead;
 
-    @Column(name = "energy.thermalstate.cost")
+    @Column(name = "thermalState_cost")
     @JsonProperty("energy.thermalstate.cost")
     private int thermalStateCost;
 
-    @Column(name = "energy.networking.cost")
+    @Column(name = "networking_cost")
     @JsonProperty("energy.networking.cost")
     private int networkingCost;
 
-    @Column(name = "energy.cost")
+    @Column(name = "total_cost")
     @JsonProperty("energy.cost")
-    private int cost;
+    private int totalCost;
 
-    @Column(name = "energy.cpu.overhead")
+    @Column(name = "cpu_overhead")
     @JsonProperty("energy.cpu.overhead")
     private int cpuOverhead;
 
-    @Column(name = "energy.appstate.overhead")
+    @Column(name = "appState_overhead")
     @JsonProperty("energy.appstate.overhead")
     private int appStateOverhead;
 
-    @Column(name = "energy.gpu.overhead")
+    @Column(name = "gpu_overhead")
     @JsonProperty("energy.gpu.overhead")
     private int gpuOverhead;
 
-    @Column(name = "energy.inducedthermalstate.cost")
+    @Column(name = "inducedThermalState_cost")
     @JsonProperty("energy.inducedthermalstate.cost")
     private int inducedThermalStateCost;
 
-    @Column(name = "energy.display.overhead")
+    @Column(name = "display_overhead")
     @JsonProperty("energy.display.overhead")
     private int displayOverhead;
 
-    @Column(name = "energy.gpu.cost")
+    @Column(name = "gpu_cost")
     @JsonProperty("energy.gpu.cost")
-    private int energyGpuCost;
+    private int gpuCost;
 
-    @Column(name = "energy.cpu.cost")
+    @Column(name = "cpu_cost")
     @JsonProperty("energy.cpu.cost")
-    private int energyCpuCost;
+    private int cpuCost;
 
-    @Column(name = "energy.display.cost")
+    @Column(name = "display_cost")
     @JsonProperty("energy.display.cost")
-    private int energyDisplayCost;
+    private int displayCost;
 
-    @Column(name = "energy.location.cost")
+    @Column(name = "location_cost")
     @JsonProperty("energy.location.cost")
-    private int energyLocationCost;
+    private int locationCost;
 
     @JsonProperty("time")
     private long time;
