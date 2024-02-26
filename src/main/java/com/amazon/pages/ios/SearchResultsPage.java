@@ -1,7 +1,6 @@
 package com.amazon.pages.ios;
 
-import com.amazon.components.desktop.FilterMenu;
-import com.amazon.components.ios.IosFilterMenu;
+import com.amazon.components.IosFilterMenu;
 import com.amazon.enums.SearchOptions;
 import com.amazon.enums.SortingOption;
 import com.amazon.pages.common.SearchResultsPageBase;
@@ -12,9 +11,6 @@ import org.openqa.selenium.support.FindBy;
 
 @DeviceType(pageType = DeviceType.Type.IOS_PHONE, parentClass = SearchResultsPageBase.class)
 public class SearchResultsPage extends SearchResultsPageBase {
-
-    @FindBy(xpath = "//h4")
-    private ExtendedWebElement productCategory;
 
     @FindBy(id = "s-all-filters")
     private ExtendedWebElement filterButton;
@@ -32,19 +28,8 @@ public class SearchResultsPage extends SearchResultsPageBase {
     }
 
     @Override
-    public String getProductCategory() {
-        return productCategory.getText();
-    }
-
-    @Override
     public void chooseSortingOption(SortingOption sortingOption) {
         filterButton.click();
         filterMenu.chooseSortingOption(sortingOption);
-    }
-
-    @Override
-    public FilterMenu getFilterMenu() {
-        filterButton.click();
-        return filterMenu;
     }
 }

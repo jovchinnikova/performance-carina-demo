@@ -1,4 +1,4 @@
-package com.amazon.components.desktop;
+package com.amazon.components;
 
 import com.amazon.pages.common.ProductPageBase;
 import com.zebrunner.carina.utils.factory.ICustomTypePageFactory;
@@ -15,9 +15,6 @@ public class ProductCard extends AbstractUIObject implements ICustomTypePageFact
 
     @FindBy(xpath = ".//span[contains(@aria-label, 'stars')]")
     private ExtendedWebElement productRating;
-
-    @FindBy(xpath = ".//span[contains(@class, 'underline')]")
-    private ExtendedWebElement reviewsCount;
 
     @FindBy(xpath = ".//span[@class='a-price']")
     private ExtendedWebElement productPrice;

@@ -18,18 +18,6 @@ public class ProductPage extends ProductPageBase {
     @FindBy(xpath = "//div[@id='productTitleExpanderRow']//a[@id='acrCustomerReviewLink']/span[1]")
     private ExtendedWebElement anotherRating;
 
-    @FindBy(id = "attach-accessory-card-deck")
-    private ExtendedWebElement cartPopup;
-
-    @FindBy(xpath = "//div[@class='sparkle-close']")
-    private ExtendedWebElement closeAlertButton;
-
-    @FindBy(id = "NATC_MWEB_FULL_PAGE_CONF_MSG_SUCCESS")
-    private ExtendedWebElement addedSuccessfullyTitle;
-
-    @FindBy(xpath = "//span[text()='DONE']")
-    private ExtendedWebElement doneButton;
-
     @FindBy(id = "nav-logo-sprites")
     private ExtendedWebElement logo;
 
@@ -53,18 +41,6 @@ public class ProductPage extends ProductPageBase {
     @Override
     public Double getProductRating() {
         return Double.parseDouble(anotherRating.getText().trim());
-    }
-
-    @Override
-    public void addProductToCart() {
-        closeAlertButton.clickIfPresent();
-        addToCartButton.click();
-        doneButton.clickIfPresent();
-    }
-
-    @Override
-    public boolean isCartSidebarPresent() {
-        return cartPopup.isPresent() || addedSuccessfullyTitle.isPresent();
     }
 
     @Override

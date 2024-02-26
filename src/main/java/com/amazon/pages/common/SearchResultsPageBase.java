@@ -1,7 +1,6 @@
 package com.amazon.pages.common;
 
-import com.amazon.components.desktop.FilterMenu;
-import com.amazon.components.desktop.ProductCard;
+import com.amazon.components.ProductCard;
 import com.amazon.enums.SortingOption;
 import com.zebrunner.carina.webdriver.decorator.ExtendedWebElement;
 import com.zebrunner.carina.webdriver.gui.AbstractPage;
@@ -11,7 +10,6 @@ import org.openqa.selenium.support.FindBy;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class SearchResultsPageBase extends AbstractPage {
 
@@ -23,12 +21,6 @@ public class SearchResultsPageBase extends AbstractPage {
 
     @FindBy(xpath = "//div[@id='a-popover-2']//a")
     private List<ExtendedWebElement> sortingOptions;
-
-    @FindBy(id = "s-refinements")
-    private FilterMenu filterMenu;
-
-    @FindBy(xpath = "//span[@class='a-list-item']/span[contains(@class,'text-bold')]")
-    private ExtendedWebElement productCategory;
 
     public SearchResultsPageBase(WebDriver driver) {
         super(driver);
@@ -52,16 +44,8 @@ public class SearchResultsPageBase extends AbstractPage {
 
     public ProductCard getFullProductCard() {
         List<ProductCard> allInfo = foundProducts.stream()
-                .filter(ProductCard::isAllInfoPresent)
-                .collect(Collectors.toList());
+                .filter(ProductCard::isAllInfoPresent).toList();
         return allInfo.get(new Random().nextInt(allInfo.size()));
     }
 
-    public FilterMenu getFilterMenu() {
-        return filterMenu;
-    }
-
-    public String getProductCategory() {
-        return productCategory.getText();
-    }
 }

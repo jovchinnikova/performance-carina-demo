@@ -5,6 +5,7 @@ import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.client.domain.WritePrecision;
 import com.performance.demo.performance.ios.pojo.Performance;
+import com.performance.demo.performance.ios.pojo.TestEvent;
 import com.performance.demo.performance.ios.pojo.process.Energy;
 import com.performance.demo.performance.ios.pojo.process.NetstatPid;
 import com.performance.demo.performance.ios.pojo.process.SysmonMonitorPid;
@@ -22,7 +23,7 @@ import java.util.Objects;
 public class DBService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static final String TOKEN = "";
+    private static final String TOKEN = "9WINIr4GJCFrsqzFgepkDyVlUolMNxvFxhjkQgxqb9EgoKEXlxcTwsZaq2m6rmCMnJnGgoNMdxyW5sEuN1OKvQ==";
     private static final String BUCKET = "perf";
     private static final String ORG = "Solvd";
     private static final InfluxDBClient CLIENT = createClient();
@@ -31,6 +32,12 @@ public class DBService {
         InfluxDBClient client = InfluxDBClientFactory.create(Objects.requireNonNull(R.TESTDATA.get("influxdb_host")),
                 TOKEN.toCharArray());
         return client;
+    }
+
+    public static void writeEvent(TestEvent testEvent) {
+        WriteApiBlocking writeApiBlocking = CLIENT.getWriteApiBlocking();
+        writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, testEvent);
+        System.out.println("event written");
     }
 
     public static void writeData(Performance performance) {

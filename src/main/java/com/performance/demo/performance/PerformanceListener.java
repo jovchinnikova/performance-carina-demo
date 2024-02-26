@@ -1,5 +1,9 @@
 package com.performance.demo.performance;
 
+import com.performance.demo.performance.ios.DBService;
+import com.performance.demo.performance.ios.IosPerformanceCollector;
+import com.performance.demo.performance.ios.pojo.TestEvent;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.events.WebDriverListener;
@@ -7,6 +11,8 @@ import org.openqa.selenium.support.events.WebDriverListener;
 import com.google.common.base.Stopwatch;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
+
+import java.time.Instant;
 
 public class PerformanceListener implements WebDriverListener {
 
@@ -51,6 +57,8 @@ public class PerformanceListener implements WebDriverListener {
 
     @Override
     public void afterClick(WebElement element) {
+        TestEvent testEvent = new TestEvent(TestEvent.EventType.CLICK, Instant.now());
+        DBService.writeEvent(testEvent);
         if (flowName != null)
             performanceCollector.collectSnapshotBenchmarks(flowName);
     }
@@ -59,6 +67,15 @@ public class PerformanceListener implements WebDriverListener {
     public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
         if (flowName != null)
             performanceCollector.collectSnapshotBenchmarks(flowName);
+        TestEvent testEvent = new TestEvent(TestEvent.EventType.SEND_KEYS, Instant.now());
+        DBService.writeEvent(testEvent);
+    }
+
+    @Override
+    public void afterGet(WebDriver driver, String url) {
+        IosPerformanceCollector.startCollecting();
+        TestEvent testEvent = new TestEvent(TestEvent.EventType.PAGE_OPENED, Instant.now());
+        DBService.writeEvent(testEvent);
     }
 
     private static void startTracking() {
