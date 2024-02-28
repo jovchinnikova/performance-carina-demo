@@ -32,6 +32,10 @@ public class InterfaceDetectionEvent extends BaseMeasurement implements Event {
     @Column(timestamp = true)
     private Instant instantTime;
 
+    public Instant getTime() {
+        return instantTime;
+    }
+
     @Override
     public void convertTime() {
         this.instantTime = Instant.ofEpochSecond(time);

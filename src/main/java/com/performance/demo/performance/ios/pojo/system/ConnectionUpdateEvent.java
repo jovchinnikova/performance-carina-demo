@@ -68,6 +68,10 @@ public class ConnectionUpdateEvent extends BaseMeasurement implements Event {
     @Column(timestamp = true)
     private Instant instantTime = Instant.ofEpochSecond(time);
 
+    public Instant getTime() {
+        return instantTime;
+    }
+
     @Override
     public void convertTime() {
         this.instantTime = Instant.ofEpochSecond(time);

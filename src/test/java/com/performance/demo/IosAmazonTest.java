@@ -5,6 +5,7 @@ import com.amazon.enums.SortingOption;
 import com.amazon.pages.common.HomePageBase;
 import com.amazon.pages.common.ProductPageBase;
 import com.amazon.pages.common.SearchResultsPageBase;
+import com.performance.demo.performance.PerformanceListener;
 import com.performance.demo.performance.ios.DBService;
 import com.performance.demo.performance.ios.IosPerformanceCollector;
 import com.performance.demo.performance.ios.Parser;
@@ -17,6 +18,7 @@ import org.testng.asserts.SoftAssert;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class IosAmazonTest implements IAbstractTest {
 
@@ -67,6 +69,7 @@ public class IosAmazonTest implements IAbstractTest {
     public void collectMetrics() {
         String response = IosPerformanceCollector.stopCollecting();
         Performance performance = Parser.createPerformanceObject(response);
+        performance.addTestEvents(PerformanceListener.getTestEvents());
         DBService.writeData(performance);
     }
 }

@@ -19,7 +19,11 @@ public class TestEvent {
         this.time = time;
     }
 
-    public enum EventType {
-        PAGE_OPENED, CLICK, SEND_KEYS
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    public Instant getTime() {
+        return time;
     }
 }

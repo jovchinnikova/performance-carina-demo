@@ -1,8 +1,16 @@
 package com.performance.demo.performance.ios.pojo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.performance.demo.performance.ios.pojo.process.Energy;
+import com.performance.demo.performance.ios.pojo.process.NetstatPid;
 import com.performance.demo.performance.ios.pojo.process.ProcessPerformance;
+import com.performance.demo.performance.ios.pojo.process.SysmonMonitorPid;
+import com.performance.demo.performance.ios.pojo.system.Event;
+import com.performance.demo.performance.ios.pojo.system.Graphics;
+import com.performance.demo.performance.ios.pojo.system.SysmonMonitor;
 import com.performance.demo.performance.ios.pojo.system.SystemPerformance;
+
+import java.util.List;
 
 public class Performance {
 
@@ -18,5 +26,52 @@ public class Performance {
 
     public ProcessPerformance getProcessPerformance() {
         return processPerformance;
+    }
+
+    public void addTestEvents(List<TestEvent> testEvents) {
+        for (TestEvent testEvent : testEvents){
+            List<Energy> energyMetrics = getProcessPerformance().getEnergyMetrics();
+            for (Energy energy : energyMetrics) {
+                energy.convertTime();
+                if (testEvent.getTime().getEpochSecond() == energy.getTime().getEpochSecond()) {
+                    energy.setEventType(testEvent.getEventType());
+                }
+            }
+            List<NetstatPid> netstatPidMetrics = getProcessPerformance().getNetstatPidMetrics();
+            for (NetstatPid netstatPid : netstatPidMetrics) {
+                netstatPid.convertTime();
+                if (testEvent.getTime().getEpochSecond() == netstatPid.getTime().getEpochSecond()) {
+                    netstatPid.setEventType(testEvent.getEventType());
+                }
+            }
+            List<SysmonMonitorPid> sysmonMonitorPidMetrics = getProcessPerformance().getSysmonMonitorPidMetrics();
+            for (SysmonMonitorPid sysmonMonitorPid : sysmonMonitorPidMetrics) {
+                sysmonMonitorPid.convertTime();
+                if (testEvent.getTime().getEpochSecond() == sysmonMonitorPid.getTime().getEpochSecond()) {
+                    sysmonMonitorPid.setEventType(testEvent.getEventType());
+                }
+            }
+            List<Graphics> graphicMetrics = getSystemPerformance().getGraphicsMetrics();
+            for (Graphics graphics : graphicMetrics) {
+                graphics.convertTime();
+                if (testEvent.getTime().getEpochSecond() == graphics.getTime().getEpochSecond()) {
+                    graphics.setEventType(testEvent.getEventType());
+                }
+            }
+            List<SysmonMonitor> sysmonMonitorMetrics = getSystemPerformance().getSysmonMonitorMetrics();
+            for (SysmonMonitor sysmonMonitor : sysmonMonitorMetrics) {
+                sysmonMonitor.convertTime();
+                if (testEvent.getTime().getEpochSecond() == sysmonMonitor.getTime().getEpochSecond()) {
+                    sysmonMonitor.setEventType(testEvent.getEventType());
+                }
+            }
+            List<Event> netstatMetrics = getSystemPerformance().getNetstatMetrics();
+            for (Event event : netstatMetrics) {
+                event.convertTime();
+                if (testEvent.getTime().getEpochSecond() == event.getTime().getEpochSecond()) {
+                    event.setEventType(testEvent.getEventType());
+                }
+            }
+        }
     }
 }

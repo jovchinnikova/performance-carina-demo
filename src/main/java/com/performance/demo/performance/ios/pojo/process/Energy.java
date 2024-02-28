@@ -91,6 +91,10 @@ public class Energy extends BaseMeasurement {
     @Column(timestamp = true)
     private Instant instantTime;
 
+    public Instant getTime() {
+        return instantTime;
+    }
+
     public void convertTime() {
         this.instantTime = Instant.ofEpochSecond(time);
     }

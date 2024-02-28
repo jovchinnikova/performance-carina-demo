@@ -2,6 +2,7 @@ package com.performance.demo.performance;
 
 import com.performance.demo.performance.ios.DBService;
 import com.performance.demo.performance.ios.IosPerformanceCollector;
+import com.performance.demo.performance.ios.pojo.EventType;
 import com.performance.demo.performance.ios.pojo.TestEvent;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -13,11 +14,13 @@ import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
 
 import java.time.Instant;
+import java.util.List;
 
 public class PerformanceListener implements WebDriverListener {
 
     private static PerformanceCollector performanceCollector;
     private static String flowName;
+    private static List<TestEvent> testEvents;
 
     /**
      * This method should be used in the beginning of each performance test
@@ -57,7 +60,8 @@ public class PerformanceListener implements WebDriverListener {
 
     @Override
     public void afterClick(WebElement element) {
-        TestEvent testEvent = new TestEvent(TestEvent.EventType.CLICK, Instant.now());
+        TestEvent testEvent = new TestEvent(EventType.CLICK, Instant.now());
+        testEvents.add(testEvent);
         DBService.writeEvent(testEvent);
         if (flowName != null)
             performanceCollector.collectSnapshotBenchmarks(flowName);
@@ -67,14 +71,16 @@ public class PerformanceListener implements WebDriverListener {
     public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
         if (flowName != null)
             performanceCollector.collectSnapshotBenchmarks(flowName);
-        TestEvent testEvent = new TestEvent(TestEvent.EventType.SEND_KEYS, Instant.now());
+        TestEvent testEvent = new TestEvent(EventType.SEND_KEYS, Instant.now());
+        testEvents.add(testEvent);
         DBService.writeEvent(testEvent);
     }
 
     @Override
     public void afterGet(WebDriver driver, String url) {
         IosPerformanceCollector.startCollecting();
-        TestEvent testEvent = new TestEvent(TestEvent.EventType.PAGE_OPENED, Instant.now());
+        TestEvent testEvent = new TestEvent(EventType.PAGE_OPENED, Instant.now());
+        testEvents.add(testEvent);
         DBService.writeEvent(testEvent);
     }
 
@@ -107,5 +113,9 @@ public class PerformanceListener implements WebDriverListener {
 
     public static void setFlowName(String flowName) {
         PerformanceListener.flowName = flowName;
+    }
+
+    public static List<TestEvent> getTestEvents() {
+        return testEvents;
     }
 }

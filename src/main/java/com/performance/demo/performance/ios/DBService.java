@@ -45,32 +45,26 @@ public class DBService {
         WriteApiBlocking writeApiBlocking = CLIENT.getWriteApiBlocking();
         List<Energy> energyMetrics = performance.getProcessPerformance().getEnergyMetrics();
         for (Energy energy : energyMetrics) {
-            energy.convertTime();
             writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, energy);
         }
         List<NetstatPid> netstatPidMetrics = performance.getProcessPerformance().getNetstatPidMetrics();
         for (NetstatPid netstatPid : netstatPidMetrics) {
-            netstatPid.convertTime();
             writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, netstatPid);
         }
         List<SysmonMonitorPid> sysmonMonitorPidMetrics = performance.getProcessPerformance().getSysmonMonitorPidMetrics();
         for (SysmonMonitorPid sysmonMonitorPid : sysmonMonitorPidMetrics) {
-            sysmonMonitorPid.convertTime();
             writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, sysmonMonitorPid);
         }
         List<Graphics> graphicMetrics = performance.getSystemPerformance().getGraphicsMetrics();
         for (Graphics graphics : graphicMetrics) {
-            graphics.convertTime();
             writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, graphics);
         }
         List<SysmonMonitor> sysmonMonitorMetrics = performance.getSystemPerformance().getSysmonMonitorMetrics();
         for (SysmonMonitor sysmonMonitor : sysmonMonitorMetrics) {
-            sysmonMonitor.convertTime();
             writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, sysmonMonitor);
         }
         List<Event> netstatMetrics = performance.getSystemPerformance().getNetstatMetrics();
         for (Event event : netstatMetrics) {
-            event.convertTime();
             writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, event);
         }
     }

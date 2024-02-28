@@ -1,11 +1,11 @@
 package com.performance.demo.performance.dao;
 
 import com.influxdb.annotations.Column;
+import com.performance.demo.performance.ios.pojo.EventType;
 import com.zebrunner.agent.core.registrar.CurrentTest;
 import com.zebrunner.agent.core.registrar.CurrentTestRun;
 import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.webdriver.IDriverPool;
-import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.Instant;
 import java.util.regex.Matcher;
@@ -45,6 +45,9 @@ public class BaseMeasurement implements IDriverPool {
     @Column(tag = true, name = "test_id")
     private Long testId;
 
+    @Column(tag = true, name = "event_type")
+    private EventType eventType;
+
     public BaseMeasurement() {
         this.osVersion = getDevice().getOsVersion();
         this.appVersion = cutAppVersionIfNecessary();
@@ -53,6 +56,7 @@ public class BaseMeasurement implements IDriverPool {
         this.env = R.CONFIG.get("env");
         this.runId = CurrentTestRun.getId().orElse(0L);
         this.testId = CurrentTest.getId().orElse(0L);
+        this.eventType = EventType.NONE;
     }
 
     public BaseMeasurement(String flowName, Instant time, String userName) {
@@ -162,4 +166,7 @@ public class BaseMeasurement implements IDriverPool {
         this.testId = testId;
     }
 
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
+    }
 }
