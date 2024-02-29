@@ -66,16 +66,9 @@ public class NetstatPid extends BaseMeasurement {
     private int netPackets;
 
     @JsonProperty("time")
-    private long time;
-
-    @Column(timestamp = true)
-    private Instant instantTime;
-
-    public Instant getTime() {
-        return instantTime;
-    }
+    private long jsonTime;
 
     public void convertTime() {
-        this.instantTime = Instant.ofEpochSecond(time);
+        this.time = Instant.ofEpochSecond(jsonTime);
     }
 }

@@ -12,316 +12,309 @@ import java.time.Instant;
 public class SysmonMonitor extends BaseMeasurement {
 
     @Column(tag = true, name = "metric_type")
-    private final String metricType = "System";
+    protected final String metricType = "System";
 
     @Column(name = "num_running")
     @JsonProperty("numRunning")
-    private int numRunning;
+    protected int numRunning;
 
     @Column(name = "mem_compressed")
     @JsonProperty("memCompressed")
-    private int memCompressed;
+    protected int memCompressed;
 
     @Column(name = "faults")
     @JsonProperty("faults")
-    private int faults;
+    protected int faults;
 
     @Column(name = "app_sleep")
     @JsonProperty("appSleep")
-    private boolean appSleep;
+    protected boolean appSleep;
 
     @Column(name = "threads_user")
     @JsonProperty("threadsUser")
-    private BigInteger threadsUser;
+    protected BigInteger threadsUser;
 
     @Column(name = "__sandbox")
     @JsonProperty("__sandbox")
-    private boolean __sandbox;
+    protected boolean __sandbox;
 
     @Column(name = "n_files")
     @JsonProperty("nfiles")
-    private int nfiles;
+    protected int nfiles;
 
     @Column(name = "name")
     @JsonProperty("name")
-    private String name;
+    protected String name;
 
     @Column(name = "mem_anon_peak")
     @JsonProperty("memAnonPeak")
-    private int memAnonPeak;
+    protected int memAnonPeak;
 
     @Column(name = "thread_count")
     @JsonProperty("threadCount")
-    private int threadCount;
+    protected int threadCount;
 
     @Column(name = "responsible_uniqueID")
     @JsonProperty("responsibleUniqueID")
-    private int responsibleUniqueID;
+    protected int responsibleUniqueID;
 
     @Column(name = "pgid")
     @JsonProperty("pgid")
-    private int pgid;
+    protected int pgid;
 
     @Column(name = "sysCallsMach")
     @JsonProperty("sysCallsMach")
-    private int sysCallsMach;
+    protected int sysCallsMach;
 
     @Column(name = "msg_sent")
     @JsonProperty("msgSent")
-    private int msgSent;
+    protected int msgSent;
 
     @Column(name = "comm")
     @JsonProperty("comm")
-    private String comm;
+    protected String comm;
 
     @Column(name = "coalitionID")
     @JsonProperty("coalitionID")
-    private int coalitionID;
+    protected int coalitionID;
 
     @Column(name = "timerWakeBin1")
     @JsonProperty("timerWakeBin1")
-    private int timerWakeBin1;
+    protected int timerWakeBin1;
 
     @Column(name = "cow_faults")
     @JsonProperty("cowFaults")
-    private int cowFaults;
+    protected int cowFaults;
 
     @Column(name = "disk_bytes_read")
     @JsonProperty("diskBytesRead")
-    private BigInteger diskBytesRead;
+    protected BigInteger diskBytesRead;
 
     @Column(name = "mem_resident_size")
     @JsonProperty("memResidentSize")
-    private int memResidentSize;
+    protected int memResidentSize;
 
     @Column(name = "total_energy_score")
     @JsonProperty("totalEnergyScore")
-    private BigInteger totalEnergyScore;
+    protected BigInteger totalEnergyScore;
 
     @Column(name = "ruid")
     @JsonProperty("ruid")
-    private int ruid;
+    protected int ruid;
 
     @Column(name = "ppid")
     @JsonProperty("ppid")
-    private int ppid;
+    protected int ppid;
 
     @Column(name = "svuid")
     @JsonProperty("svuid")
-    private int svuid;
+    protected int svuid;
 
     @Column(name = "pid")
     @JsonProperty("pid")
-    private int pid;
+    protected int pid;
 
     @Column(name = "wired_size")
     @JsonProperty("wiredSize")
-    private int wiredSize;
+    protected int wiredSize;
 
     @Column(name = "mem_virtual_size")
     @JsonProperty("memVirtualSize")
-    private BigInteger memVirtualSize;
+    protected BigInteger memVirtualSize;
 
     @Column(name = "__suddenTerm")
     @JsonProperty("__suddenTerm")
-    private boolean __suddenTerm;
+    protected boolean __suddenTerm;
 
     @Column(name = "responsiblePID")
     @JsonProperty("responsiblePID")
-    private int responsiblePID;
+    protected int responsiblePID;
 
     @Column(name = "proc_age")
     @JsonProperty("procAge")
-    private BigInteger procAge;
+    protected BigInteger procAge;
 
     @Column(name = "parentUniqueID")
     @JsonProperty("parentUniqueID")
-    private int parentUniqueID;
+    protected int parentUniqueID;
 
     @Column(name = "threads_system")
     @JsonProperty("threadsSystem")
-    private BigInteger threadsSystem;
+    protected BigInteger threadsSystem;
 
     @Column(name = "pjobc")
     @JsonProperty("pjobc")
-    private int pjobc;
+    protected int pjobc;
 
     @Column(name = "disk_bytes_written")
     @JsonProperty("diskBytesWritten")
-    private BigInteger diskBytesWritten;
+    protected BigInteger diskBytesWritten;
 
     @Column(name = "cpu_usage")
     @JsonProperty("cpuUsage")
-    private String cpuUsage;
+    protected String cpuUsage;
 
     @Column(name = "policy")
     @JsonProperty("policy")
-    private int policy;
+    protected int policy;
 
     @Column(name = "machPortCount")
     @JsonProperty("machPortCount")
-    private int machPortCount;
+    protected int machPortCount;
 
     @Column(name = "svgid")
     @JsonProperty("svgid")
-    private int svgid;
+    protected int svgid;
 
     @Column(name = "cpu_total_user")
     @JsonProperty("cpuTotalUser")
-    private BigInteger cpuTotalUser;
+    protected BigInteger cpuTotalUser;
 
     @Column(name = "proc_status")
     @JsonProperty("procStatus")
-    private int procStatus;
+    protected int procStatus;
 
     @Column(name = "nice")
     @JsonProperty("nice")
-    private int nice;
+    protected int nice;
 
     @Column(name = "tpgid")
     @JsonProperty("tpgid")
-    private int tpgid;
+    protected int tpgid;
 
     @Column(name = "throughputQosTier")
     @JsonProperty("throughputQosTier")
-    private int throughputQosTier;
+    protected int throughputQosTier;
 
     @Column(name = "wqRunThreads")
     @JsonProperty("wqRunThreads")
-    private int wqRunThreads;
+    protected int wqRunThreads;
 
     @Column(name = "__restricted")
     @JsonProperty("__restricted")
-    private boolean __restricted;
+    protected boolean __restricted;
 
     @Column(name = "wqBlockedThreads")
     @JsonProperty("wqBlockedThreads")
-    private int wqBlockedThreads;
+    protected int wqBlockedThreads;
 
     @Column(name = "mem_prrvt")
     @JsonProperty("memRPrvt")
-    private String memRPrvt;
+    protected String memRPrvt;
 
     @Column(name = "mem_purgeable")
     @JsonProperty("memPurgeable")
-    private int memPurgeable;
+    protected int memPurgeable;
 
     @Column(name = "platIdleWakeups")
     @JsonProperty("platIdleWakeups")
-    private int platIdleWakeups;
+    protected int platIdleWakeups;
 
     @Column(name = "rgid")
     @JsonProperty("rgid")
-    private int rgid;
+    protected int rgid;
 
     @Column(name = "procXstatus")
     @JsonProperty("procXstatus")
-    private int procXstatus;
+    protected int procXstatus;
 
     @Column(name = "cpu_total_system")
     @JsonProperty("cpuTotalSystem")
-    private BigInteger cpuTotalSystem;
+    protected BigInteger cpuTotalSystem;
 
     @Column(name = "wqState")
     @JsonProperty("wqState")
-    private int wqState;
+    protected int wqState;
 
     @Column(name = "mem_anon")
     @JsonProperty("memAnon")
-    private int memAnon;
+    protected int memAnon;
 
     @Column(name = "wqNumThreads")
     @JsonProperty("wqNumThreads")
-    private int wqNumThreads;
+    protected int wqNumThreads;
 
     @Column(name = "__arch")
     @JsonProperty("__arch")
-    private int __arch;
+    protected int __arch;
 
     @Column(name = "priority")
     @JsonProperty("priority")
-    private int priority;
+    protected int priority;
 
     @Column(name = "timerWakeBin2")
     @JsonProperty("timerWakeBin2")
-    private int timerWakeBin2;
+    protected int timerWakeBin2;
 
     @Column(name = "tdev")
     @JsonProperty("tdev")
-    private int tdev;
+    protected int tdev;
 
     @Column(name = "uid")
     @JsonProperty("uid")
-    private int uid;
+    protected int uid;
 
     @Column(name = "start_abs_time")
     @JsonProperty("startAbsTime")
-    private BigInteger startAbsTime;
+    protected BigInteger startAbsTime;
 
     @Column(name = "msg_recv")
     @JsonProperty("msgRecv")
-    private int msgRecv;
+    protected int msgRecv;
 
     @Column(name = "memr_shrd")
     @JsonProperty("memRShrd")
-    private String memRShrd;
+    protected String memRShrd;
 
     @Column(name = "phys_footprint")
     @JsonProperty("physFootprint")
-    private int physFootprint;
+    protected int physFootprint;
 
     @Column(name = "gid")
     @JsonProperty("gid")
-    private int gid;
+    protected int gid;
 
     @Column(name = "uniqueID")
     @JsonProperty("uniqueID")
-    private int uniqueID;
+    protected int uniqueID;
 
     @Column(name = "sys_calls_unix")
     @JsonProperty("sysCallsUnix")
-    private int sysCallsUnix;
+    protected int sysCallsUnix;
 
     @Column(name = "vmPageIns")
     @JsonProperty("vmPageIns")
-    private int vmPageIns;
+    protected int vmPageIns;
 
     @Column(name = "procFlags")
     @JsonProperty("procFlags")
-    private int procFlags;
+    protected int procFlags;
 
     @Column(name = "power_score")
     @JsonProperty("powerScore")
-    private int powerScore;
+    protected int powerScore;
 
     @Column(name = "ctx_switch")
     @JsonProperty("ctxSwitch")
-    private int ctxSwitch;
+    protected int ctxSwitch;
 
     @Column(name = "intWakeups")
     @JsonProperty("intWakeups")
-    private int intWakeups;
+    protected int intWakeups;
 
     @Column(name = "latencyQosTier")
     @JsonProperty("latencyQosTier")
-    private int latencyQosTier;
+    protected int latencyQosTier;
 
     @Column(name = "avg_power_score")
     @JsonProperty("avgPowerScore")
-    private double avgPowerScore;
+    protected double avgPowerScore;
 
     @JsonProperty("time")
-    private long time;
-
-    @Column(timestamp = true)
-    private Instant instantTime;
-
-    public Instant getTime() {
-        return instantTime;
-    }
+    private long jsonTime;
 
     public void convertTime() {
-        this.instantTime = Instant.ofEpochSecond(time);
+        this.time = Instant.ofEpochSecond(jsonTime);
     }
 
 }

@@ -86,16 +86,9 @@ public class Energy extends BaseMeasurement {
     private int locationCost;
 
     @JsonProperty("time")
-    private long time;
-
-    @Column(timestamp = true)
-    private Instant instantTime;
-
-    public Instant getTime() {
-        return instantTime;
-    }
+    private long jsonTime;
 
     public void convertTime() {
-        this.instantTime = Instant.ofEpochSecond(time);
+        this.time = Instant.ofEpochSecond(jsonTime);
     }
 }

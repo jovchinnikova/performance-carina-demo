@@ -63,17 +63,9 @@ public class ConnectionUpdateEvent extends BaseMeasurement implements Event {
     private int unknown1;
 
     @JsonProperty("time")
-    private long time;
+    private long jsonTime;
 
-    @Column(timestamp = true)
-    private Instant instantTime = Instant.ofEpochSecond(time);
-
-    public Instant getTime() {
-        return instantTime;
-    }
-
-    @Override
     public void convertTime() {
-        this.instantTime = Instant.ofEpochSecond(time);
+        this.time = Instant.ofEpochSecond(jsonTime);
     }
 }
