@@ -65,7 +65,7 @@ public class Graphics extends BaseMeasurement {
     @JsonProperty("CoreAnimationFramesPerSecond")
     private int coreAnimationFramesPerSecond;
 
-    @JsonProperty("time")
+    @JsonProperty("json_time")
     private long jsonTime;
 
     public void convertTime() {

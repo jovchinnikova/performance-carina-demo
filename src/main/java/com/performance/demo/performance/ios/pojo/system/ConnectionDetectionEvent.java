@@ -42,7 +42,7 @@ public class ConnectionDetectionEvent extends BaseMeasurement implements Event {
     @JsonProperty("kind")
     private int kind;
 
-    @JsonProperty("time")
+    @JsonProperty("json_time")
     private long jsonTime;
 
     public void convertTime() {

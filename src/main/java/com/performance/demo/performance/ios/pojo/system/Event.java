@@ -3,7 +3,7 @@ package com.performance.demo.performance.ios.pojo.system;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.performance.demo.performance.ios.pojo.EventType;
+import com.performance.demo.performance.ios.pojo.TestEvent;
 
 import java.time.Instant;
 
@@ -15,7 +15,7 @@ public interface Event {
 
     void convertTime();
 
-    void setEventType(EventType eventType);
+    void setEventType(TestEvent testEvent);
 
     Instant getTime();
 

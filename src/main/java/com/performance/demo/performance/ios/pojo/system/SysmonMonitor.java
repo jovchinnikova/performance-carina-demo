@@ -140,7 +140,7 @@ public class SysmonMonitor extends BaseMeasurement {
 
     @Column(name = "threads_system")
     @JsonProperty("threadsSystem")
-    protected BigInteger threadsSystem;
+    protected String threadsSystem;
 
     @Column(name = "pjobc")
     @JsonProperty("pjobc")
@@ -310,7 +310,7 @@ public class SysmonMonitor extends BaseMeasurement {
     @JsonProperty("avgPowerScore")
     protected double avgPowerScore;
 
-    @JsonProperty("time")
+    @JsonProperty("json_time")
     private long jsonTime;
 
     public void convertTime() {

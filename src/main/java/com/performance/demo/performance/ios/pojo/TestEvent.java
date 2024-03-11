@@ -11,12 +11,16 @@ public class TestEvent {
     @Column(name = "event_type")
     private EventType eventType;
 
+    @Column(name = "element_name")
+    private String elementName;
+
     @Column(timestamp = true)
     private Instant time;
 
-    public TestEvent(EventType eventType, Instant time) {
+    public TestEvent(EventType eventType, String elementName, Instant time) {
         this.eventType = eventType;
         this.time = time;
+        this.elementName = elementName;
     }
 
     public EventType getEventType() {
@@ -25,5 +29,9 @@ public class TestEvent {
 
     public Instant getTime() {
         return time;
+    }
+
+    public String getElementName() {
+        return elementName;
     }
 }

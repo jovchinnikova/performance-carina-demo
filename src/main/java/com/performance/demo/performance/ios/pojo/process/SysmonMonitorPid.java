@@ -13,7 +13,7 @@ public class SysmonMonitorPid extends SysmonMonitor {
     @Column(tag = true, name = "metric_type")
     private final String metricType = "Process";
 
-    @JsonProperty("time")
+    @JsonProperty("json_time")
     private long jsonTime;
 
     public void convertTime() {

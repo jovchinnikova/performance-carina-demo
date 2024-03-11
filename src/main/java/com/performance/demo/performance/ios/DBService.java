@@ -23,7 +23,7 @@ import java.util.Objects;
 public class DBService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static final String TOKEN = "9WINIr4GJCFrsqzFgepkDyVlUolMNxvFxhjkQgxqb9EgoKEXlxcTwsZaq2m6rmCMnJnGgoNMdxyW5sEuN1OKvQ==";
+    private static final String TOKEN = "";
     private static final String BUCKET = "perf";
     private static final String ORG = "Solvd";
     private static final InfluxDBClient CLIENT = createClient();
@@ -37,35 +37,22 @@ public class DBService {
     public static void writeEvent(TestEvent testEvent) {
         WriteApiBlocking writeApiBlocking = CLIENT.getWriteApiBlocking();
         writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, testEvent);
-        System.out.println("event written");
     }
 
     public static void writeData(Performance performance) {
         LOGGER.info("Writing benchmarks to Database");
         WriteApiBlocking writeApiBlocking = CLIENT.getWriteApiBlocking();
         List<Energy> energyMetrics = performance.getProcessPerformance().getEnergyMetrics();
-        for (Energy energy : energyMetrics) {
-            writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, energy);
-        }
+        writeApiBlocking.writeMeasurements(BUCKET, ORG, WritePrecision.NS, energyMetrics);
         List<NetstatPid> netstatPidMetrics = performance.getProcessPerformance().getNetstatPidMetrics();
-        for (NetstatPid netstatPid : netstatPidMetrics) {
-            writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, netstatPid);
-        }
+        writeApiBlocking.writeMeasurements(BUCKET, ORG, WritePrecision.NS, netstatPidMetrics);
         List<SysmonMonitorPid> sysmonMonitorPidMetrics = performance.getProcessPerformance().getSysmonMonitorPidMetrics();
-        for (SysmonMonitorPid sysmonMonitorPid : sysmonMonitorPidMetrics) {
-            writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, sysmonMonitorPid);
-        }
+        writeApiBlocking.writeMeasurements(BUCKET, ORG, WritePrecision.NS, sysmonMonitorPidMetrics);
         List<Graphics> graphicMetrics = performance.getSystemPerformance().getGraphicsMetrics();
-        for (Graphics graphics : graphicMetrics) {
-            writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, graphics);
-        }
+        writeApiBlocking.writeMeasurements(BUCKET, ORG, WritePrecision.NS, graphicMetrics);
         List<SysmonMonitor> sysmonMonitorMetrics = performance.getSystemPerformance().getSysmonMonitorMetrics();
-        for (SysmonMonitor sysmonMonitor : sysmonMonitorMetrics) {
-            writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, sysmonMonitor);
-        }
+        writeApiBlocking.writeMeasurements(BUCKET, ORG, WritePrecision.NS, sysmonMonitorMetrics);
         List<Event> netstatMetrics = performance.getSystemPerformance().getNetstatMetrics();
-        for (Event event : netstatMetrics) {
-            writeApiBlocking.writeMeasurement(BUCKET, ORG, WritePrecision.NS, event);
-        }
+        writeApiBlocking.writeMeasurements(BUCKET, ORG, WritePrecision.NS, netstatMetrics);
     }
 }

@@ -32,7 +32,7 @@ public class ConnectionUpdateEvent extends BaseMeasurement implements Event {
 
     @Column(name = "rx_dups")
     @JsonProperty("rx_dups")
-    private int rx_dups;
+    private BigInteger rx_dups;
 
     @Column(name = "rx000")
     @JsonProperty("rx000")

@@ -26,7 +26,7 @@ public class InterfaceDetectionEvent extends BaseMeasurement implements Event {
     @JsonProperty("name")
     private String name;
 
-    @JsonProperty("time")
+    @JsonProperty("json_time")
     private long jsonTime;
 
     public void convertTime() {

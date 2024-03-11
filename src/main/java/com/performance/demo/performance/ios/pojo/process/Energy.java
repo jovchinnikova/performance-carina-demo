@@ -85,7 +85,7 @@ public class Energy extends BaseMeasurement {
     @JsonProperty("energy.location.cost")
     private int locationCost;
 
-    @JsonProperty("time")
+    @JsonProperty("json_time")
     private long jsonTime;
 
     public void convertTime() {

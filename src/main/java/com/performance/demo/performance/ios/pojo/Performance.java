@@ -34,42 +34,42 @@ public class Performance {
             for (Energy energy : energyMetrics) {
                 energy.convertTime();
                 if (testEvent.getTime().getEpochSecond() == energy.getTime().getEpochSecond()) {
-                    energy.setEventType(testEvent.getEventType());
+                    energy.setEventType(testEvent);
                 }
             }
             List<NetstatPid> netstatPidMetrics = getProcessPerformance().getNetstatPidMetrics();
             for (NetstatPid netstatPid : netstatPidMetrics) {
                 netstatPid.convertTime();
                 if (testEvent.getTime().getEpochSecond() == netstatPid.getTime().getEpochSecond()) {
-                    netstatPid.setEventType(testEvent.getEventType());
+                    netstatPid.setEventType(testEvent);
                 }
             }
             List<SysmonMonitorPid> sysmonMonitorPidMetrics = getProcessPerformance().getSysmonMonitorPidMetrics();
             for (SysmonMonitorPid sysmonMonitorPid : sysmonMonitorPidMetrics) {
                 sysmonMonitorPid.convertTime();
                 if (testEvent.getTime().getEpochSecond() == sysmonMonitorPid.getTime().getEpochSecond()) {
-                    sysmonMonitorPid.setEventType(testEvent.getEventType());
+                    sysmonMonitorPid.setEventType(testEvent);
                 }
             }
             List<Graphics> graphicMetrics = getSystemPerformance().getGraphicsMetrics();
             for (Graphics graphics : graphicMetrics) {
                 graphics.convertTime();
                 if (testEvent.getTime().getEpochSecond() == graphics.getTime().getEpochSecond()) {
-                    graphics.setEventType(testEvent.getEventType());
+                    graphics.setEventType(testEvent);
                 }
             }
             List<SysmonMonitor> sysmonMonitorMetrics = getSystemPerformance().getSysmonMonitorMetrics();
             for (SysmonMonitor sysmonMonitor : sysmonMonitorMetrics) {
                 sysmonMonitor.convertTime();
                 if (testEvent.getTime().getEpochSecond() == sysmonMonitor.getTime().getEpochSecond()) {
-                    sysmonMonitor.setEventType(testEvent.getEventType());
+                    sysmonMonitor.setEventType(testEvent);
                 }
             }
             List<Event> netstatMetrics = getSystemPerformance().getNetstatMetrics();
             for (Event event : netstatMetrics) {
                 event.convertTime();
                 if (testEvent.getTime().getEpochSecond() == event.getTime().getEpochSecond()) {
-                    event.setEventType(testEvent.getEventType());
+                    event.setEventType(testEvent);
                 }
             }
         }
