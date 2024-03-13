@@ -10,6 +10,7 @@ import org.openqa.selenium.support.FindBy;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class SearchResultsPageBase extends AbstractPage {
 
@@ -44,7 +45,7 @@ public class SearchResultsPageBase extends AbstractPage {
 
     public ProductCard getFullProductCard() {
         List<ProductCard> allInfo = foundProducts.stream()
-                .filter(ProductCard::isAllInfoPresent).toList();
+                .filter(ProductCard::isAllInfoPresent).collect(Collectors.toList());
         return allInfo.get(new Random().nextInt(allInfo.size()));
     }
 

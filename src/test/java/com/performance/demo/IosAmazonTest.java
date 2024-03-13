@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class IosAmazonTest implements IosPerformanceTest {
 
@@ -20,7 +21,7 @@ public class IosAmazonTest implements IosPerformanceTest {
         searchResultsPage.chooseSortingOption(SortingOption.PRICE_DESC);
         List<Double> prices = searchResultsPage.getFoundProducts().stream()
                 .map(ProductCard::getPrice)
-                .filter(Objects::nonNull).toList();
+                .filter(Objects::nonNull).collect(Collectors.toList());
         for (int i = 0; i < prices.size() - 1; i++) {
             Assert.assertTrue(prices.get(i) >= prices.get(i+1), "The price isn't sorted descending!");
         }
