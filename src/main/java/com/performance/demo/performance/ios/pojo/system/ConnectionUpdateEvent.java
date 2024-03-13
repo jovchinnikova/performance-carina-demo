@@ -6,13 +6,14 @@ import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
 import com.performance.demo.performance.dao.BaseMeasurement;
 
+import java.math.BigInteger;
 import java.time.Instant;
 
 @Measurement(name = "Netstat")
 @JsonRootName("ConnectionUpdateEvent")
 public class ConnectionUpdateEvent extends BaseMeasurement implements Event {
 
-    @Column(tag = true, name = "event_type")
+    @Column(tag = true, name = "type")
     String eventType = "ConnectionUpdateEvent";
 
     @Column(tag = true, name = "metric_type")
@@ -62,7 +63,7 @@ public class ConnectionUpdateEvent extends BaseMeasurement implements Event {
     @JsonProperty("unknown1")
     private int unknown1;
 
-    @JsonProperty("time")
+    @JsonProperty("json_time")
     private long jsonTime;
 
     public void convertTime() {

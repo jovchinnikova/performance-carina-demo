@@ -65,7 +65,7 @@ public class NetstatPid extends BaseMeasurement {
     @JsonProperty("net.packets")
     private int netPackets;
 
-    @JsonProperty("json_time")
+    @JsonProperty("time")
     private long jsonTime;
 
     public void convertTime() {

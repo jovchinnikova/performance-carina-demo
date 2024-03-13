@@ -12,7 +12,7 @@ import java.time.Instant;
 public class SysmonMonitor extends BaseMeasurement {
 
     @Column(tag = true, name = "metric_type")
-    protected final String metricType = "System";
+    private final String metricType = "System";
 
     @Column(name = "num_running")
     @JsonProperty("numRunning")

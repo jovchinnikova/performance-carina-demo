@@ -28,11 +28,12 @@ public class Performance {
         return processPerformance;
     }
 
-    public void addTestEvents(List<TestEvent> testEvents) {
+    public void addTestEvents(List<TestEvent> testEvents, String methodName) {
         for (TestEvent testEvent : testEvents){
             List<Energy> energyMetrics = getProcessPerformance().getEnergyMetrics();
             for (Energy energy : energyMetrics) {
                 energy.convertTime();
+                energy.setFlowName(methodName);
                 if (testEvent.getTime().getEpochSecond() == energy.getTime().getEpochSecond()) {
                     energy.setEventType(testEvent);
                 }
@@ -40,6 +41,7 @@ public class Performance {
             List<NetstatPid> netstatPidMetrics = getProcessPerformance().getNetstatPidMetrics();
             for (NetstatPid netstatPid : netstatPidMetrics) {
                 netstatPid.convertTime();
+                netstatPid.setFlowName(methodName);
                 if (testEvent.getTime().getEpochSecond() == netstatPid.getTime().getEpochSecond()) {
                     netstatPid.setEventType(testEvent);
                 }
@@ -47,6 +49,7 @@ public class Performance {
             List<SysmonMonitorPid> sysmonMonitorPidMetrics = getProcessPerformance().getSysmonMonitorPidMetrics();
             for (SysmonMonitorPid sysmonMonitorPid : sysmonMonitorPidMetrics) {
                 sysmonMonitorPid.convertTime();
+                sysmonMonitorPid.setFlowName(methodName);
                 if (testEvent.getTime().getEpochSecond() == sysmonMonitorPid.getTime().getEpochSecond()) {
                     sysmonMonitorPid.setEventType(testEvent);
                 }
@@ -54,6 +57,7 @@ public class Performance {
             List<Graphics> graphicMetrics = getSystemPerformance().getGraphicsMetrics();
             for (Graphics graphics : graphicMetrics) {
                 graphics.convertTime();
+                graphics.setFlowName(methodName);
                 if (testEvent.getTime().getEpochSecond() == graphics.getTime().getEpochSecond()) {
                     graphics.setEventType(testEvent);
                 }
@@ -61,6 +65,7 @@ public class Performance {
             List<SysmonMonitor> sysmonMonitorMetrics = getSystemPerformance().getSysmonMonitorMetrics();
             for (SysmonMonitor sysmonMonitor : sysmonMonitorMetrics) {
                 sysmonMonitor.convertTime();
+                sysmonMonitor.setFlowName(methodName);
                 if (testEvent.getTime().getEpochSecond() == sysmonMonitor.getTime().getEpochSecond()) {
                     sysmonMonitor.setEventType(testEvent);
                 }
@@ -68,6 +73,7 @@ public class Performance {
             List<Event> netstatMetrics = getSystemPerformance().getNetstatMetrics();
             for (Event event : netstatMetrics) {
                 event.convertTime();
+                event.setFlowName(methodName);
                 if (testEvent.getTime().getEpochSecond() == event.getTime().getEpochSecond()) {
                     event.setEventType(testEvent);
                 }

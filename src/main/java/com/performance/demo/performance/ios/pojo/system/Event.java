@@ -17,6 +17,8 @@ public interface Event {
 
     void setEventType(TestEvent testEvent);
 
+    void setFlowName(String methodName);
+
     Instant getTime();
 
 }

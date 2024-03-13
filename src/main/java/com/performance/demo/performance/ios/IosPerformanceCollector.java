@@ -1,5 +1,9 @@
 package com.performance.demo.performance.ios;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.performance.demo.performance.ios.pojo.Performance;
+import com.performance.demo.performance.service.InfluxDbService;
 import com.zebrunner.carina.utils.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +23,14 @@ import java.util.concurrent.TimeUnit;
 public class IosPerformanceCollector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private final InfluxDbService dbService;
+    private Performance performanceMetrics;
 
-    public static void startCollecting() {
+    public IosPerformanceCollector() {
+        this.dbService = new InfluxDbService();
+    }
+
+    public void startCollecting() {
         LOGGER.info("Collecting performance metrics");
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -37,7 +47,7 @@ public class IosPerformanceCollector {
         }
     }
 
-    public static String stopCollecting() {
+    public String stopCollecting() {
         String responseString = "";
         LOGGER.info("Stop collecting metrics");
         try {
@@ -53,5 +63,21 @@ public class IosPerformanceCollector {
             e.printStackTrace();
         }
         return responseString;
+    }
+
+    public Performance createPerformanceObject(String json) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Performance performance = new Performance();
+        try {
+            performance = objectMapper.readValue(json, Performance.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        this.performanceMetrics = performance;
+        return performance;
+    }
+
+    public void writePerformanceToDB() {
+        dbService.writeData(performanceMetrics);
     }
 }

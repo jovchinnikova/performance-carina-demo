@@ -8,6 +8,14 @@ import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.client.domain.WritePrecision;
 import com.performance.demo.performance.dao.BaseMeasurement;
+import com.performance.demo.performance.ios.pojo.Performance;
+import com.performance.demo.performance.ios.pojo.TestEvent;
+import com.performance.demo.performance.ios.pojo.process.Energy;
+import com.performance.demo.performance.ios.pojo.process.NetstatPid;
+import com.performance.demo.performance.ios.pojo.process.SysmonMonitorPid;
+import com.performance.demo.performance.ios.pojo.system.Event;
+import com.performance.demo.performance.ios.pojo.system.Graphics;
+import com.performance.demo.performance.ios.pojo.system.SysmonMonitor;
 import com.zebrunner.carina.utils.R;
 
 public class InfluxDbService {
@@ -19,7 +27,7 @@ public class InfluxDbService {
     public InfluxDbService() {
         this.bucket = R.TESTDATA.get("influxdb_bucket");
         this.org = R.TESTDATA.get("influxdb_org");
-        this.token = R.TESTDATA.getDecrypted("influxdb_token");
+        this.token = R.TESTDATA.get("influxdb_token");
         this.client = InfluxDBClientFactory.create(Objects.requireNonNull(R.TESTDATA.get("influxdb_host")),
                 token.toCharArray());
     }
@@ -34,6 +42,22 @@ public class InfluxDbService {
         for (BaseMeasurement benchmark : allBenchmarks) {
             writeApiBlocking.writeMeasurement(bucket, org, WritePrecision.NS, benchmark);
         }
+    }
+
+    public void writeData(Performance performance) {
+        WriteApiBlocking writeApiBlocking = client.getWriteApiBlocking();
+        List<Energy> energyMetrics = performance.getProcessPerformance().getEnergyMetrics();
+        writeApiBlocking.writeMeasurements(bucket, org, WritePrecision.NS, energyMetrics);
+        List<NetstatPid> netstatPidMetrics = performance.getProcessPerformance().getNetstatPidMetrics();
+        writeApiBlocking.writeMeasurements(bucket, org, WritePrecision.NS, netstatPidMetrics);
+        List<SysmonMonitorPid> sysmonMonitorPidMetrics = performance.getProcessPerformance().getSysmonMonitorPidMetrics();
+        writeApiBlocking.writeMeasurements(bucket, org, WritePrecision.NS, sysmonMonitorPidMetrics);
+        List<Graphics> graphicMetrics = performance.getSystemPerformance().getGraphicsMetrics();
+        writeApiBlocking.writeMeasurements(bucket, org, WritePrecision.NS, graphicMetrics);
+        List<SysmonMonitor> sysmonMonitorMetrics = performance.getSystemPerformance().getSysmonMonitorMetrics();
+        writeApiBlocking.writeMeasurements(bucket, org, WritePrecision.NS, sysmonMonitorMetrics);
+        List<Event> netstatMetrics = performance.getSystemPerformance().getNetstatMetrics();
+        writeApiBlocking.writeMeasurements(bucket, org, WritePrecision.NS, netstatMetrics);
     }
 
     public boolean isAvailable() {

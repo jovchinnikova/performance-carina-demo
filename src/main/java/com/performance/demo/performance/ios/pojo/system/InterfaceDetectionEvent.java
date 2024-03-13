@@ -15,7 +15,7 @@ public class InterfaceDetectionEvent extends BaseMeasurement implements Event {
     @Column(tag = true, name = "metric_type")
     String metricType = "System";
 
-    @Column(tag = true, name = "event_type")
+    @Column(tag = true, name = "type")
     String eventType = "InterfaceDetectionEvent";
 
     @Column(name = "interface_index")
