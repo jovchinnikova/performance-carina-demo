@@ -27,7 +27,7 @@ public class InfluxDbService {
     public InfluxDbService() {
         this.bucket = R.TESTDATA.get("influxdb_bucket");
         this.org = R.TESTDATA.get("influxdb_org");
-        this.token = R.TESTDATA.get("influxdb_token");
+        this.token = R.TESTDATA.getDecrypted("influxdb_token");
         this.client = InfluxDBClientFactory.create(Objects.requireNonNull(R.TESTDATA.get("influxdb_host")),
                 token.toCharArray());
     }
