@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class IosAmazonTest implements IosPerformanceTest {
+public class IosAmazonTest implements IPerformanceTest {
 
     @Test
     public void sortPriceIosTest() {
