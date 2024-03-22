@@ -29,7 +29,6 @@ public class Gfx extends BaseMeasurement {
     public Gfx(int totalFrames, int jankyFrames, int percentile90, int percentile95, int percentile99, Instant time,
                String flowName, String userName) {
         super(flowName, time, userName);
-//        this.activityName = activityName;
         this.totalFrames = totalFrames;
         this.jankyFrames = jankyFrames;
         this.percentile90 = percentile90;

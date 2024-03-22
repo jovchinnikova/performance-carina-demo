@@ -44,6 +44,7 @@ public class BaseMeasurement implements IDriverPool {
     @Column(tag = true, name = "test_id")
     private Long testId;
 
+
     public BaseMeasurement(String flowName, Instant time, String userName) {
         this.osVersion = getDevice().getOsVersion();
         this.appVersion = cutAppVersionIfNecessary();

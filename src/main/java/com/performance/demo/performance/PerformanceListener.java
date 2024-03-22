@@ -1,26 +1,40 @@
 package com.performance.demo.performance;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.support.events.WebDriverListener;
-
 import com.google.common.base.Stopwatch;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
+import com.zebrunner.carina.webdriver.listener.DriverListener;
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Sequence;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.support.events.WebDriverListener;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 
 public class PerformanceListener implements WebDriverListener {
 
     private static PerformanceCollector performanceCollector;
     private static String flowName;
 
+    private static String elementName;
+
     /**
      * This method should be used in the beginning of each performance test
      */
     public static void startPerformanceTracking(String flowName, String userName, boolean isCollectLoginTime, boolean isCollectExecutionTime) {
         if (!SpecialKeywords.IOS.equalsIgnoreCase(WebDriverConfiguration.getCapability(CapabilityType.PLATFORM_NAME).orElseThrow())) {
-            performanceCollector = new AdbPerformanceCollector();
+            try {
+                performanceCollector = new AdbPerformanceCollector();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             performanceCollector.setUserName(userName);
             setFlowName(flowName);
+            performanceCollector.setLoadTimeStopwatch(Stopwatch.createUnstarted());
             performanceCollector.setCollectLoginTime(isCollectLoginTime);
             performanceCollector.setCollectExecutionTime(isCollectExecutionTime);
             startTracking();
@@ -39,6 +53,9 @@ public class PerformanceListener implements WebDriverListener {
      * This method should be used in the end of each performance test
      */
     public static void stopPerformanceTracking() {
+        if (performanceCollector.getLoadTimeStopwatch().isRunning()) {
+            performanceCollector.collectLoadTime(flowName);
+        }
         if (flowName != null) {
             if (performanceCollector.isCollectLoginTime() && !performanceCollector.isCollectExecutionTime())
                 performanceCollector.collectLoginTime(flowName);
@@ -50,15 +67,52 @@ public class PerformanceListener implements WebDriverListener {
     }
 
     @Override
+    public void beforeClick(WebElement element) {
+        String driverMessage = DriverListener.getMessage(true);
+        elementName = StringUtils.substringBetween(driverMessage, "element '", " (");
+    }
+
+    @Override
     public void afterClick(WebElement element) {
-        if (flowName != null)
-            performanceCollector.collectSnapshotBenchmarks(flowName);
+        String action = "Clicking " + getElementName();
+        if (flowName != null) {
+            performanceCollector.collectSnapshotBenchmarks(flowName, action);
+        }
+        if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
+            performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
+            performanceCollector.setActionName(action);
+        }
+    }
+
+    @Override
+    public void beforeSendKeys(WebElement element, CharSequence... keysToSend) {
+        String driverMessage = DriverListener.getMessage(true);
+        elementName = StringUtils.substringBetween(driverMessage, "element '", " (");
     }
 
     @Override
     public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
+        String action = "Typing: " + Arrays.toString(keysToSend) +
+                ", element: " + getElementName();
+        elementName = null;
         if (flowName != null)
-            performanceCollector.collectSnapshotBenchmarks(flowName);
+            performanceCollector.collectSnapshotBenchmarks(flowName, action);
+        if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
+            performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
+            performanceCollector.setActionName(action);
+        }
+    }
+    @Override
+    public void afterPerform(WebDriver driver, Collection<Sequence> actions) {
+        String action = "Perform swiping";
+        if (flowName != null)
+            performanceCollector.collectSnapshotBenchmarks(flowName, action);
+    }
+    @Override
+    public void beforeAnyWebElementCall(WebElement element, Method method, Object[] args) {
+        if (performanceCollector.getLoadTimeStopwatch().isRunning()) {
+            performanceCollector.collectLoadTime(flowName);
+        }
     }
 
     private static void startTracking() {
@@ -66,14 +120,20 @@ public class PerformanceListener implements WebDriverListener {
             if (performanceCollector.isCollectLoginTime() && performanceCollector.isCollectExecutionTime()) {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 performanceCollector.setLoginStopwatch(stopwatch);
-                performanceCollector.setExecutionStopWatch(stopwatch);
+                performanceCollector.setExecutionStopwatch(stopwatch);
             } else if (performanceCollector.isCollectLoginTime())
                 performanceCollector.setLoginStopwatch(Stopwatch.createStarted());
             else if (performanceCollector.isCollectExecutionTime())
-                performanceCollector.setExecutionStopWatch(Stopwatch.createStarted());
+                performanceCollector.setExecutionStopwatch(Stopwatch.createStarted());
 
             performanceCollector.collectNetBenchmarks();
         }
+    }
+
+    public static String getElementName() {
+        String element = elementName;
+        elementName = null;
+        return element;
     }
 
     public static PerformanceCollector getPerformanceCollector() {
