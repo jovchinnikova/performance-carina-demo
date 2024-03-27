@@ -5,6 +5,7 @@ import com.amazon.enums.SortingOption;
 import com.amazon.pages.common.HomePageBase;
 import com.amazon.pages.common.ProductPageBase;
 import com.amazon.pages.common.SearchResultsPageBase;
+import com.performance.demo.annotations.PerformanceTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 public class IosAmazonTest implements IPerformanceTest {
 
     @Test
+    @PerformanceTest()
     public void sortPriceIosTest() {
         SearchResultsPageBase searchResultsPage = initPage(getDriver(), SearchResultsPageBase.class);
         searchResultsPage.open();
@@ -28,6 +30,7 @@ public class IosAmazonTest implements IPerformanceTest {
     }
 
     @Test
+    @PerformanceTest()
     public void productLogoIosTest() {
         HomePageBase homePage = initPage(getDriver(), HomePageBase.class);
         SearchResultsPageBase searchResultsPage = initPage(getDriver(), SearchResultsPageBase.class);
