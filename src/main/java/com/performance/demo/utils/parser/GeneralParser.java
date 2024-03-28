@@ -15,6 +15,13 @@ public class GeneralParser {
 
     public Row parse(List<String> lines, AdbPerformanceCollector.PerformanceTypes performanceTypes) {
         switch (performanceTypes) {
+            case MEM2: {
+                if (lines.contains(MemParser2.PSS_DELIMITER.toString())) {
+                    return new MemParser2().parse(lines, bundleId);
+                } else {
+                    return new MemParser().parse(lines, bundleId);
+                }
+            }
             case GFX: {
                 return new GfxParser().parse(lines);
             }

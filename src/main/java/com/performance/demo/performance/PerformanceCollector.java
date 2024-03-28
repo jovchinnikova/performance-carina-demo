@@ -34,6 +34,7 @@ public abstract class PerformanceCollector implements IDriverPool {
     private Stopwatch loadTimeStopwatch;
 
     private String actionName;
+    private String elementName;
 
     protected String userName;
     protected int loadTimeQty = 0;
@@ -47,11 +48,11 @@ public abstract class PerformanceCollector implements IDriverPool {
         loadTimeStopwatch.stop();
         Double loadTime = (double) loadTimeStopwatch.elapsed(TimeUnit.MILLISECONDS);
         LOGGER.info("LOAD TIME " + loadTime);
-        allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName, actionName));
+        allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName, actionName, elementName));
         loadTimeQty++;
     }
 
-    public void collectSnapshotBenchmarks(String flowName, String actionName) {
+    public void collectSnapshotBenchmarks(String flowName, String actionName, String elementName) {
         Double cpuValue = collectCpuBenchmarks();
         Double memValue = collectMemoryBenchmarks();
 
@@ -65,8 +66,8 @@ public abstract class PerformanceCollector implements IDriverPool {
         }
 
         try {
-            allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName));
-            allBenchmarks.add(new Memory(memValue, instant, flowName, userName, actionName));
+            allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName, elementName));
+            allBenchmarks.add(new Memory(memValue, instant, flowName, userName, actionName, elementName));
         } catch (Exception e) {
             LOGGER.warn("No data was received for memory or cpu");
         }
@@ -108,8 +109,9 @@ public abstract class PerformanceCollector implements IDriverPool {
         this.userName = userName;
     }
 
-    public void setActionName(String clickActionName) {
-        this.actionName = clickActionName;
+    public void setActionElementNames(String actionName, String elementName) {
+        this.actionName = actionName;
+        this.elementName = elementName;
     }
 
     protected abstract Double collectCpuBenchmarks();

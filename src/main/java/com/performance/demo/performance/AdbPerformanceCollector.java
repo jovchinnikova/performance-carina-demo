@@ -5,6 +5,7 @@ import com.performance.demo.performance.dao.Gfx;
 import com.performance.demo.performance.dao.Network;
 import com.performance.demo.utils.parser.GeneralParser;
 import com.performance.demo.utils.parser.GfxParser;
+import com.performance.demo.utils.parser.MemParser;
 import com.performance.demo.utils.parser.NetParser;
 import com.zebrunner.carina.webdriver.IDriverPool;
 import org.openqa.selenium.HasCapabilities;
@@ -31,6 +32,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
     private String cpuCommand;
     private String memCommand;
+    private String memCommand2;
     private String netCommand;
     private String gfxCommand;
 
@@ -49,6 +51,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     public enum PerformanceTypes {
         CPU("ps -p %s -o %%cpu="),
         MEM("dumpsys meminfo %s | awk '/TOTAL PSS:/ {print $3} /TOTAL:/ {print $2}'"),
+        MEM2("dumpsys meminfo %s"),
         NET("cat proc/%s/net/dev"),
         PID("pgrep -f %s"),
         GFX("dumpsys gfxinfo %s framestats");
@@ -114,15 +117,32 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     protected Double collectMemoryBenchmarks() {
         Double memValue = null;
         String memOutput = collectBenchmark(memCommand);
+        String memOutput2;
 
         if (!memOutput.isEmpty()) {
             try {
                 LOGGER.info("total pss: {}", memOutput);
                 memValue = Double.parseDouble(memOutput);
+                memQuantity++;
             } catch (Exception e) {
-                LOGGER.warn("There was an error during parsing MEM command output");
+                LOGGER.warn("There was an error during parsing MEM command output. Trying MEM2...");
+                memOutput2 = collectBenchmark(memCommand2);
+                try {
+                    memValue = ((MemParser.MemRow) generalParser.parse(Arrays.asList(memOutput2.split("\\n")), PerformanceTypes.MEM2)).getTotalPss();
+                    memQuantity++;
+                } catch (Exception x) {
+                    LOGGER.warn("There was an error during parsing MEM2 command output. Check ADB.");
+                }
             }
-            memQuantity++;
+        } else {
+            LOGGER.warn("There was an empty output for MEM command. Trying MEM2...");
+            memOutput2 = collectBenchmark(memCommand2);
+            try {
+                memValue = ((MemParser.MemRow) generalParser.parse(Arrays.asList(memOutput2.split("\\n")), PerformanceTypes.MEM2)).getTotalPss();
+                memQuantity++;
+            } catch (Exception x) {
+                LOGGER.warn("There was an error during parsing MEM2 command output. Check ADB.");
+            }
         }
 
         return memValue;
@@ -274,6 +294,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
         netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
         memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
+        memCommand2 = String.format(PerformanceTypes.MEM2.cmdArgs, bundleId);
         gfxCommand = String.format(PerformanceTypes.GFX.cmdArgs, bundleId);
     }
 

@@ -12,7 +12,6 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.events.WebDriverListener;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 
 public class PerformanceListener implements WebDriverListener {
@@ -74,13 +73,14 @@ public class PerformanceListener implements WebDriverListener {
 
     @Override
     public void afterClick(WebElement element) {
-        String action = "Clicking " + getElementName();
+        String actionName = "Clicking";
+        String elementName = getElementName();
         if (flowName != null) {
-            performanceCollector.collectSnapshotBenchmarks(flowName, action);
+            performanceCollector.collectSnapshotBenchmarks(flowName, actionName, elementName);
         }
         if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
-            performanceCollector.setActionName(action);
+            performanceCollector.setActionElementNames(actionName, elementName);
         }
     }
 
@@ -92,21 +92,21 @@ public class PerformanceListener implements WebDriverListener {
 
     @Override
     public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
-        String action = "Typing: " + Arrays.toString(keysToSend) +
-                ", element: " + getElementName();
-        elementName = null;
+        String actionName = "Typing";
+        String elementName = getElementName();
         if (flowName != null)
-            performanceCollector.collectSnapshotBenchmarks(flowName, action);
+            performanceCollector.collectSnapshotBenchmarks(flowName, actionName, elementName);
         if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
-            performanceCollector.setActionName(action);
+            performanceCollector.setActionElementNames(actionName, elementName);
         }
     }
     @Override
     public void afterPerform(WebDriver driver, Collection<Sequence> actions) {
-        String action = "Perform swiping";
+        String action = "Swiping";
+        String element = "Element";
         if (flowName != null)
-            performanceCollector.collectSnapshotBenchmarks(flowName, action);
+            performanceCollector.collectSnapshotBenchmarks(flowName, action, element);
     }
     @Override
     public void beforeAnyWebElementCall(WebElement element, Method method, Object[] args) {
