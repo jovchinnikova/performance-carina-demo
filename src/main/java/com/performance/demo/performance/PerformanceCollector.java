@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import com.performance.demo.performance.dao.*;
 import com.performance.demo.performance.service.InfluxDbService;
 import com.performance.demo.utils.parser.GfxParser;
+import com.performance.demo.utils.parser.NetParser;
 import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.webdriver.IDriverPool;
 import org.slf4j.Logger;
@@ -68,6 +69,8 @@ public abstract class PerformanceCollector implements IDriverPool {
         try {
             allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName, elementName));
             allBenchmarks.add(new Memory(memValue, instant, flowName, userName, actionName, elementName));
+            collectNetBenchmarks();
+            subtractNetData(instant, flowName, actionName, elementName);
         } catch (Exception e) {
             LOGGER.warn("No data was received for memory or cpu");
         }
@@ -121,6 +124,8 @@ public abstract class PerformanceCollector implements IDriverPool {
     protected abstract GfxParser.GfxRow collectGfxBenchmarks();
 
     protected abstract void collectNetBenchmarks();
+
+    protected abstract void subtractNetData(Instant instant, String flowName, String actionName, String elementName);
 
     protected abstract boolean collectAllBenchmarks(String flowName);
 

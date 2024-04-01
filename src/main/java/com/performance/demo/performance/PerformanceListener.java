@@ -25,7 +25,7 @@ public class PerformanceListener implements WebDriverListener {
      * This method should be used in the beginning of each performance test
      */
     public static void startPerformanceTracking(String flowName, String userName, boolean isCollectLoginTime, boolean isCollectExecutionTime) {
-        if (!SpecialKeywords.IOS.equalsIgnoreCase(WebDriverConfiguration.getCapability(CapabilityType.PLATFORM_NAME).orElseThrow())) {
+        if (!SpecialKeywords.IOS.equalsIgnoreCase(WebDriverConfiguration.getCapability(CapabilityType.PLATFORM_NAME).get())) {
             try {
                 performanceCollector = new AdbPerformanceCollector();
             } catch (Exception e) {

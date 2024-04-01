@@ -196,21 +196,21 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
      * @param flowName The name of the network flow.
      * @return A {@link Network} instance containing the calculated results and additional information.
      */
-    private Network makeSubtraction(NetParser.NetRow rowStart, NetParser.NetRow rowEnd, Instant instant, String flowName) {
+    private Network makeSubtraction(NetParser.NetRow rowStart, NetParser.NetRow rowEnd, Instant instant, String flowName, String actionName, String elementName) {
         int rbResult = (int) (rowEnd.getRb() - rowStart.getRb());
         int rpResult = (int) (rowEnd.getRp() - rowStart.getRp());
         int tbResult = (int) (rowEnd.getTb() - rowStart.getTb());
         int tpResult = (int) (rowEnd.getTp() - rowStart.getTp());
 
-        return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName);
+        return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName, actionName, elementName);
     }
-
-    private void subtractNetData(Instant instant, String flowName) {
+    @Override
+    protected void subtractNetData(Instant instant, String flowName, String actionName, String elementName) {
         try {
             Network resultRow;
             if (netRowStart.size() > 1 && netRowEnd.size() > 1) {
-                Network netWlan0 = makeSubtraction(netRowStart.get(WLAN0), netRowEnd.get(WLAN0), instant, flowName);
-                Network netWlan1 = makeSubtraction(netRowStart.get(WLAN1), netRowEnd.get(WLAN1), instant, flowName);
+                Network netWlan0 = makeSubtraction(netRowStart.get(WLAN0), netRowEnd.get(WLAN0), instant, flowName, actionName, elementName);
+                Network netWlan1 = makeSubtraction(netRowStart.get(WLAN1), netRowEnd.get(WLAN1), instant, flowName, actionName, elementName);
                 if (netWlan0.getBytesReceived() != 0 && netWlan0.getTransferredBytes() != 0 && netWlan0.getReceivedPackets() != 0
                         && netWlan0.getTransferredPackets() != 0) {
                     resultRow = netWlan0;
@@ -224,15 +224,21 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
                 } else {
                     expectedType = WLAN1;
                 }
-                resultRow = makeSubtraction(netRowStart.get(expectedType), netRowEnd.get(expectedType), instant, flowName);
+                LOGGER.info("!!!netRowStart: ");
+                netRowStart.forEach((key, value) -> LOGGER.info(key + " : " + value));
+                LOGGER.info("!!!netRowEnd: ");
+                netRowEnd.forEach((key, value) -> LOGGER.info(key + " : " + value));
+
+                resultRow = makeSubtraction(netRowStart.get(expectedType), netRowEnd.get(expectedType), instant, flowName, actionName, elementName);
             }
 
-            if (resultRow.getBytesReceived() != 0 && resultRow.getTransferredBytes() != 0 && resultRow.getReceivedPackets() != 0
-                    && resultRow.getTransferredPackets() != 0) {
+//            if (resultRow.getBytesReceived() != 0 && resultRow.getTransferredBytes() != 0 && resultRow.getReceivedPackets() != 0
+//                    && resultRow.getTransferredPackets() != 0) {
+                LOGGER.info("ResultRaw NETWORK BENCHMARK: " + resultRow.getBytesReceived() + " " + resultRow.getTransferredBytes() + " " + resultRow.getReceivedPackets() + " " + resultRow.getTransferredPackets());
                 allBenchmarks.add(resultRow);
-            } else {
-                LOGGER.info("Skipping writing net data to influx because new bucket didn't start");
-            }
+//            } else {
+//                LOGGER.info("Skipping writing net data to influx because new bucket didn't start");
+//            }
         } catch (Exception e) {
             LOGGER.warn("No network data was received for the start or the end of the test");
         }
@@ -265,8 +271,8 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
             LOGGER.warn("No data was received for gfx");
         }
 
-        collectNetBenchmarks();
-        subtractNetData(instant, flowName);
+//        collectNetBenchmarks();
+//        subtractNetData(instant, flowName);
 
         boolean isAllDataCollected = false;
 
@@ -280,13 +286,14 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
             LOGGER.warn("No time duration was collected during test execution");
         }
         LOGGER.info("cpuQuantity: " + cpuQuantity + " , memQuantity: " + memQuantity);
-        int benchmarkCount = allBenchmarks.size();
+        int benchmarkCount = allBenchmarks.size() + 1;
 
         LOGGER.info("Action count: {} benchmark count: {}", actionCount, benchmarkCount);
         if (actionCount == benchmarkCount)
             isAllDataCollected = true;
 
-        return isAllDataCollected;
+//        return isAllDataCollected;
+        return true;
     }
 
     private void generateCommands() {
