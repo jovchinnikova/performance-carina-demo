@@ -127,6 +127,8 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     protected abstract void subtractNetData(Instant instant, String flowName, String actionName, String elementName);
 
+    protected abstract String collectNetBenchmarks2();
+
     protected abstract boolean collectAllBenchmarks(String flowName);
 
     public Stopwatch getLoadTimeStopwatch() {

@@ -30,10 +30,14 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     private final String bundleId = getAppPackage();
     private final GeneralParser generalParser;
     private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
+
+    private String pid;
     private String cpuCommand;
     private String memCommand;
     private String memCommand2;
+    private String nifCommand;
     private String netCommand;
+    private String netCommand2;
     private String gfxCommand;
 
     private Map<String, NetParser.NetRow> netRowStart;
@@ -52,7 +56,9 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         CPU("ps -p %s -o %%cpu="),
         MEM("dumpsys meminfo %s | awk '/TOTAL PSS:/ {print $3} /TOTAL:/ {print $2}'"),
         MEM2("dumpsys meminfo %s"),
+        NIF("dumpsys netstats %s | grep -m 1 'iface=' | awk -F '=' '{split($2, a, \" \"); print a[1]}'"),
         NET("cat proc/%s/net/dev"),
+        NET2("cat proc/%s/net/dev | grep '%s' | awk '{print $1,$2,$3,$10,$11}'"),
         PID("pgrep -f %s"),
         GFX("dumpsys gfxinfo %s framestats");
 
@@ -166,7 +172,6 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     @Override
     protected void collectNetBenchmarks() {
         String netData = collectBenchmark(netCommand);
-        String pid = executeMobileShellCommand(pidCommand).trim();
         LOGGER.info("PID: {} ", pid);
 
         String[] netOutput = netData.split("\\n");
@@ -185,6 +190,13 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
             netRowEnd = netRow;
         }
 
+    }
+
+    @Override
+    protected String collectNetBenchmarks2() {
+        String netData = collectBenchmark(netCommand2);
+        System.out.println(netData);
+        return netData;
     }
 
     /**
@@ -297,9 +309,13 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     }
 
     private void generateCommands() {
-        String pid = executeMobileShellCommand(pidCommand).trim();
-        cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
+        pid = executeMobileShellCommand(pidCommand).trim();
+        nifCommand = String.format(PerformanceTypes.NIF.cmdArgs, pid);
+        String nif = executeMobileShellCommand(nifCommand).trim();
+        System.out.println(nif);
         netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
+        netCommand2 = String.format(PerformanceTypes.NET2.cmdArgs, pid, nif);
+        cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
         memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
         memCommand2 = String.format(PerformanceTypes.MEM2.cmdArgs, bundleId);
         gfxCommand = String.format(PerformanceTypes.GFX.cmdArgs, bundleId);
