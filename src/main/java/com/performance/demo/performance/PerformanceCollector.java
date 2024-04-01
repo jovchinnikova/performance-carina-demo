@@ -122,6 +122,8 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     protected abstract void collectNetBenchmarks();
 
+    protected abstract String collectNetBenchmarks2();
+
     protected abstract boolean collectAllBenchmarks(String flowName);
 
     public Stopwatch getLoadTimeStopwatch() {
