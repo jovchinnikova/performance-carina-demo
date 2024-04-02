@@ -69,6 +69,8 @@ public abstract class PerformanceCollector implements IDriverPool {
         try {
             allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName, elementName));
             allBenchmarks.add(new Memory(memValue, instant, flowName, userName, actionName, elementName));
+//            collectNetBenchmarks2();
+//            subtractNetData2(instant, flowName, actionName, elementName);
             collectNetBenchmarks();
             subtractNetData(instant, flowName, actionName, elementName);
         } catch (Exception e) {
@@ -125,9 +127,11 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     protected abstract void collectNetBenchmarks();
 
+    protected abstract void subtractNetData2(Instant instant, String flowName, String actionName, String elementName);
+
     protected abstract void subtractNetData(Instant instant, String flowName, String actionName, String elementName);
 
-    protected abstract String collectNetBenchmarks2();
+    protected abstract NetParser.NetRow collectNetBenchmarks2();
 
     protected abstract boolean collectAllBenchmarks(String flowName);
 

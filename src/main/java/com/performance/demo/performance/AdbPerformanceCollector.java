@@ -24,6 +24,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+//    private static final String WLAN0 = "radio0";
     private static final String WLAN0 = "wlan0";
     private static final String WLAN1 = "wlan1";
 
@@ -42,6 +43,8 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     private Map<String, NetParser.NetRow> netRowStart;
     private Map<String, NetParser.NetRow> netRowEnd;
+    private NetParser.NetRow netRowStartNotMap;
+    private NetParser.NetRow netRowEndNotMap;
 
     private int cpuQuantity = 0;
     private int memQuantity = 0;
@@ -56,7 +59,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         CPU("ps -p %s -o %%cpu="),
         MEM("dumpsys meminfo %s | awk '/TOTAL PSS:/ {print $3} /TOTAL:/ {print $2}'"),
         MEM2("dumpsys meminfo %s"),
-        NIF("dumpsys netstats %s | grep -m 1 'iface=' | awk -F '=' '{split($2, a, \" \"); print a[1]}'"),
+        NIF("dumpsys netstats %s | grep 'defaultNetwork=true' | grep -m 1 'iface=' | awk -F '=' '{split($2, a, \" \"); print a[1]}'"),
         NET("cat proc/%s/net/dev"),
         NET2("cat proc/%s/net/dev | grep '%s' | awk '{print $1,$2,$3,$10,$11}'"),
         PID("pgrep -f %s"),
@@ -176,14 +179,16 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
         String[] netOutput = netData.split("\\n");
 
-        Map<String, NetParser.NetRow> netRow = generalParser.parseNet(List.of(netOutput));
+        LOGGER.info("-!-!-netOutput: ");
+//        List.of(netOutput).forEach(LOGGER::info);
 
+        Map<String, NetParser.NetRow> netRow = generalParser.parseNet(List.of(netOutput));
+        LOGGER.info("netRow: " + netRow);
         try {
             netRow.forEach((type, row) -> LOGGER.info("Net data type: {}, Net Row: {}", type, row));
         } catch (Exception e) {
             LOGGER.warn("There was an error during parsing of netdata");
         }
-
         if (netRowStart == null) {
             netRowStart = netRow;
         } else {
@@ -193,10 +198,30 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     }
 
     @Override
-    protected String collectNetBenchmarks2() {
+    protected NetParser.NetRow collectNetBenchmarks2() {
         String netData = collectBenchmark(netCommand2);
-        System.out.println(netData);
-        return netData;
+        LOGGER.info("NET DATA collectNetBenchmarks2: ");
+        LOGGER.info(netData);
+        String [] netRow = netData.split(" ");
+        NetParser.NetRow netRow1Obj = new NetParser.NetRow(0,
+                Integer.parseInt(netRow[1]),
+                Integer.parseInt(netRow[2]),
+                Integer.parseInt(netRow[3]),
+                Integer.parseInt(netRow[4]));
+//        Map<String, NetParser.NetRow> map = Map.of(netRow[0].substring(0, netRow[0].length() - 1), netRow1Obj);
+        LOGGER.info("netRow: " + netRow1Obj);
+//        try {
+//            map.forEach((type, row) -> LOGGER.info("Net data type: {}, Net Row: {}", type, row));
+//        } catch (Exception e) {
+//            LOGGER.warn("There was an error during parsing of netdata");
+//        }
+
+//        if (netRowStart == null) {
+//            netRowStart = map;
+//        } else {
+//            netRowEnd = map;
+//        }
+        return netRow1Obj;
     }
 
     /**
@@ -209,6 +234,8 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
      * @return A {@link Network} instance containing the calculated results and additional information.
      */
     private Network makeSubtraction(NetParser.NetRow rowStart, NetParser.NetRow rowEnd, Instant instant, String flowName, String actionName, String elementName) {
+        LOGGER.info("!!!MS RowStart: " + rowStart);
+        LOGGER.info("!!!MS RowEnd: " + rowEnd);
         int rbResult = (int) (rowEnd.getRb() - rowStart.getRb());
         int rpResult = (int) (rowEnd.getRp() - rowStart.getRp());
         int tbResult = (int) (rowEnd.getTb() - rowStart.getTb());
@@ -217,7 +244,39 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName, actionName, elementName);
     }
     @Override
+    protected void subtractNetData2(Instant instant, String flowName, String actionName, String elementName) {
+        NetParser.NetRow netRow = collectNetBenchmarks2();
+        if (netRowStartNotMap == null) {
+            netRowStartNotMap = netRow;
+        } else {
+            netRowEndNotMap = netRow;
+        }
+        try {
+            Network resultRow;
+//            String expectedType;
+//            if (netRowStart.containsKey(WLAN0) && netRowEnd.containsKey(WLAN0)) {
+//                expectedType = WLAN0;
+//            } else {
+//                expectedType = WLAN1;
+//            }
+            LOGGER.info("!!!netRowStart: " + netRowStartNotMap);
+            LOGGER.info("!!!netRowEnd: " + netRowEndNotMap);
+
+            resultRow = makeSubtraction(netRowStartNotMap, netRowEndNotMap, instant, flowName, actionName, elementName);
+
+
+            LOGGER.info("ResultRaw NETWORK BENCHMARK: " + resultRow.getBytesReceived() + " " + resultRow.getReceivedPackets() + " " + resultRow.getTransferredBytes()  + " " + resultRow.getTransferredPackets());
+            allBenchmarks.add(resultRow);
+        } catch (Exception e) {
+            LOGGER.warn("Exception: " + e);
+            LOGGER.warn("No network data was received for the start or the end of the test");
+        }
+    }
+    @Override
     protected void subtractNetData(Instant instant, String flowName, String actionName, String elementName) {
+        LOGGER.info("!!!netRowStart: " + netRowStart);
+        LOGGER.info("!!!netRowEnd: " + netRowEnd);
+
         try {
             Network resultRow;
             if (netRowStart.size() > 1 && netRowEnd.size() > 1) {
@@ -252,6 +311,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 //                LOGGER.info("Skipping writing net data to influx because new bucket didn't start");
 //            }
         } catch (Exception e) {
+            LOGGER.warn("Exception: " + e);
             LOGGER.warn("No network data was received for the start or the end of the test");
         }
     }
@@ -310,9 +370,10 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     private void generateCommands() {
         pid = executeMobileShellCommand(pidCommand).trim();
+        LOGGER.info("PID: " + pid);
         nifCommand = String.format(PerformanceTypes.NIF.cmdArgs, pid);
         String nif = executeMobileShellCommand(nifCommand).trim();
-        System.out.println(nif);
+        LOGGER.info("NETWORK INTERFACE: " + nif);
         netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
         netCommand2 = String.format(PerformanceTypes.NET2.cmdArgs, pid, nif);
         cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
