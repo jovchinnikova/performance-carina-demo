@@ -8,10 +8,10 @@ import java.time.Instant;
 @Measurement(name = "load_time")
 public class LoadTime extends BaseMeasurement{
 
-    @Column(tag = true, name = "actionName")
+    @Column(tag = true, name = "action_name")
     private String actionName;
 
-    @Column(tag = true, name = "elementName")
+    @Column(tag = true, name = "element_name")
     private String elementName;
 
     @Column(name = "value")

@@ -77,7 +77,7 @@ public class PerformanceListener implements WebDriverListener {
         String elementName = getElementName();
         if (flowName != null) {
             performanceCollector.collectSnapshotBenchmarks(flowName, actionName, elementName);
-//            performanceCollector.collectNetBenchmarks2();
+            performanceCollector.collectNetBenchmarks(flowName, actionName, elementName);
         }
         if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
@@ -102,13 +102,18 @@ public class PerformanceListener implements WebDriverListener {
             performanceCollector.setActionElementNames(actionName, elementName);
         }
     }
+
+    // TODO: 03.04.2024 Find a way to get action and element name here:
     @Override
     public void afterPerform(WebDriver driver, Collection<Sequence> actions) {
         String action = "Swiping";
         String element = "Element";
-        if (flowName != null)
+        if (flowName != null) {
             performanceCollector.collectSnapshotBenchmarks(flowName, action, element);
+            performanceCollector.collectNetBenchmarks(flowName, action, element);
+        }
     }
+
     @Override
     public void beforeAnyWebElementCall(WebElement element, Method method, Object[] args) {
         if (performanceCollector.getLoadTimeStopwatch().isRunning()) {
@@ -127,9 +132,7 @@ public class PerformanceListener implements WebDriverListener {
             else if (performanceCollector.isCollectExecutionTime())
                 performanceCollector.setExecutionStopwatch(Stopwatch.createStarted());
 
-//            performanceCollector.collectNetBenchmarks();
-
-//            performanceCollector.collectNetBenchmarks2();
+            performanceCollector.collectNetData2();
         }
     }
 

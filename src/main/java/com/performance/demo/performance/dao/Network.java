@@ -20,10 +20,10 @@ public class Network extends BaseMeasurement {
     @Column(name = "tp")
     private int transferredPackets;
 
-    @Column(tag = true, name = "actionName")
+    @Column(tag = true, name = "action_name")
     private String actionName;
 
-    @Column(tag = true, name = "elementName")
+    @Column(tag = true, name = "element_name")
     private String elementName;
 
     public Network(int bytesReceived, int receivedPackets, int transferredBytes,

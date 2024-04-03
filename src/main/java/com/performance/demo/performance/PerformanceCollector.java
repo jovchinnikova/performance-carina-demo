@@ -4,7 +4,6 @@ import com.google.common.base.Stopwatch;
 import com.performance.demo.performance.dao.*;
 import com.performance.demo.performance.service.InfluxDbService;
 import com.performance.demo.utils.parser.GfxParser;
-import com.performance.demo.utils.parser.NetParser;
 import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.webdriver.IDriverPool;
 import org.slf4j.Logger;
@@ -54,10 +53,9 @@ public abstract class PerformanceCollector implements IDriverPool {
     }
 
     public void collectSnapshotBenchmarks(String flowName, String actionName, String elementName) {
+        Instant instant = Instant.now();
         Double cpuValue = collectCpuBenchmarks();
         Double memValue = collectMemoryBenchmarks();
-
-        Instant instant = Instant.now();
 
         if (!epochSeconds) {
             long instantToEpoch = instant.toEpochMilli();
@@ -69,12 +67,24 @@ public abstract class PerformanceCollector implements IDriverPool {
         try {
             allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName, elementName));
             allBenchmarks.add(new Memory(memValue, instant, flowName, userName, actionName, elementName));
-//            collectNetBenchmarks2();
-//            subtractNetData2(instant, flowName, actionName, elementName);
-            collectNetBenchmarks();
-            subtractNetData(instant, flowName, actionName, elementName);
         } catch (Exception e) {
-            LOGGER.warn("No data was received for memory or cpu");
+            LOGGER.warn("There was a problem in snapshot benchmarks:");
+            LOGGER.warn(e.getMessage());
+        }
+    }
+
+    public void collectNetBenchmarks(String flowName, String actionName, String elementName) {
+        Instant instant = Instant.now();
+        Network netValue = subtractNetData2(instant, flowName, actionName, elementName);
+        try {
+            if (netValue != null) {
+                allBenchmarks.add(netValue);
+            } else {
+                throw new NullPointerException("No runtime data for network was received");
+            }
+        } catch (Exception e) {
+            LOGGER.warn("There was a problem in net benchmarks:");
+            LOGGER.warn(e.getMessage());
         }
     }
 
@@ -125,13 +135,13 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     protected abstract GfxParser.GfxRow collectGfxBenchmarks();
 
-    protected abstract void collectNetBenchmarks();
+    protected abstract void collectNetData();
 
-    protected abstract void subtractNetData2(Instant instant, String flowName, String actionName, String elementName);
+    protected abstract Network subtractNetData2(Instant instant, String flowName, String actionName, String elementName);
 
     protected abstract void subtractNetData(Instant instant, String flowName, String actionName, String elementName);
 
-    protected abstract NetParser.NetRow collectNetBenchmarks2();
+    protected abstract void collectNetData2();
 
     protected abstract boolean collectAllBenchmarks(String flowName);
 

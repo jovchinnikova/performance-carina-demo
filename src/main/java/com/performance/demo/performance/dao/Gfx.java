@@ -8,9 +8,6 @@ import java.time.Instant;
 @Measurement(name = "gfx")
 public class Gfx extends BaseMeasurement {
 
-    @Column(tag = true, name = "activityName")
-    private String activityName;
-
     @Column(name = "total_frames")
     private int totalFrames;
 
@@ -34,14 +31,6 @@ public class Gfx extends BaseMeasurement {
         this.percentile90 = percentile90;
         this.percentile95 = percentile95;
         this.percentile99 = percentile99;
-    }
-
-    public String getActivityName() {
-        return activityName;
-    }
-
-    public void setActivityName(String activityName) {
-        this.activityName = activityName;
     }
 
     public int getTotalFrames() {
