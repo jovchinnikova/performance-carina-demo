@@ -24,7 +24,6 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    //    private static final String WLAN0 = "radio0";
     private static final String WLAN0 = "wlan0";
     private static final String WLAN1 = "wlan1";
 
@@ -169,31 +168,6 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         return (GfxParser.GfxRow) generalParser.parse(Arrays.asList(output.split("\\n")), PerformanceTypes.GFX);
     }
 
-    /**
-     * Collects network benchmarks by executing a network command and parsing the output.
-     */
-    @Override
-    protected void collectNetData() {
-        String netData = collectBenchmark(netCommand);
-        LOGGER.info("PID: {} ", pid);
-
-        String[] netOutput = netData.split("\\n");
-
-        Map<String, NetParser.NetRow> netRow = generalParser.parseNet(List.of(netOutput));
-        LOGGER.info("netRow: " + netRow);
-        try {
-            netRow.forEach((type, row) -> LOGGER.info("Net data type: {}, Net Row: {}", type, row));
-        } catch (Exception e) {
-            LOGGER.warn("There was an error during parsing of netdata");
-        }
-        if (netRowStart == null) {
-            netRowStart = netRow;
-        } else {
-            netRowEnd = netRow;
-        }
-
-    }
-
     @Override
     protected void collectNetData2() {
         String netData = collectBenchmark(netCommand2);
@@ -214,20 +188,12 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     /**
      * Calculates the difference between two {@link NetParser.NetRow} instances and creates a {@link Network} instance with the results.
      *
-     * @param rowStart The starting {@link NetParser.NetRow} instance.
-     * @param rowEnd   The ending {@link NetParser.NetRow} instance.
+    // * @param rowStart The starting {@link NetParser.NetRow} instance.
+    // * @param rowEnd   The ending {@link NetParser.NetRow} instance.
      * @param instant  The timestamp for when the network data is recorded.
      * @param flowName The name of the network flow.
      * @return A {@link Network} instance containing the calculated results and additional information.
      */
-    private Network makeSubtraction(NetParser.NetRow rowStart, NetParser.NetRow rowEnd, Instant instant, String flowName, String actionName, String elementName) {
-        int rbResult = (int) (rowEnd.getRb() - rowStart.getRb());
-        int rpResult = (int) (rowEnd.getRp() - rowStart.getRp());
-        int tbResult = (int) (rowEnd.getTb() - rowStart.getTb());
-        int tpResult = (int) (rowEnd.getTp() - rowStart.getTp());
-
-        return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName, actionName, elementName);
-    }
 
     private Network makeSubtraction2(Instant instant, String flowName, String actionName, String elementName) {
         int rbResult = (int) (netRowEndNew.getRb() - netRowStartNew.getRb());
@@ -251,42 +217,6 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
             LOGGER.warn("No network data was received for the start or the end of the test");
         }
         return null;
-    }
-
-    @Override
-    protected void subtractNetData(Instant instant, String flowName, String actionName, String elementName) {
-
-        try {
-            Network resultRow;
-            if (netRowStart.size() > 1 && netRowEnd.size() > 1) {
-                Network netWlan0 = makeSubtraction(netRowStart.get(WLAN0), netRowEnd.get(WLAN0), instant, flowName, actionName, elementName);
-                Network netWlan1 = makeSubtraction(netRowStart.get(WLAN1), netRowEnd.get(WLAN1), instant, flowName, actionName, elementName);
-                if (netWlan0.getBytesReceived() != 0 && netWlan0.getTransferredBytes() != 0 && netWlan0.getReceivedPackets() != 0
-                        && netWlan0.getTransferredPackets() != 0) {
-                    resultRow = netWlan0;
-                } else {
-                    resultRow = netWlan1;
-                }
-            } else {
-                String expectedType;
-                if (netRowStart.containsKey(WLAN0) && netRowEnd.containsKey(WLAN0)) {
-                    expectedType = WLAN0;
-                } else {
-                    expectedType = WLAN1;
-                }
-                netRowStart.forEach((key, value) -> LOGGER.info(key + " : " + value));
-                netRowEnd.forEach((key, value) -> LOGGER.info(key + " : " + value));
-
-                resultRow = makeSubtraction(netRowStart.get(expectedType), netRowEnd.get(expectedType), instant, flowName, actionName, elementName);
-            }
-
-            LOGGER.info("ResultRaw NETWORK BENCHMARK: " + resultRow.getBytesReceived() + " " + resultRow.getTransferredBytes() + " " + resultRow.getReceivedPackets() + " " + resultRow.getTransferredPackets());
-            allBenchmarks.add(resultRow);
-
-        } catch (Exception e) {
-            LOGGER.warn("Exception: " + e);
-            LOGGER.warn("No network data was received for the start or the end of the test");
-        }
     }
 
     /**

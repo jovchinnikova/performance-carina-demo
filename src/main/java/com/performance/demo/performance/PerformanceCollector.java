@@ -135,11 +135,7 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     protected abstract GfxParser.GfxRow collectGfxBenchmarks();
 
-    protected abstract void collectNetData();
-
     protected abstract Network subtractNetData2(Instant instant, String flowName, String actionName, String elementName);
-
-    protected abstract void subtractNetData(Instant instant, String flowName, String actionName, String elementName);
 
     protected abstract void collectNetData2();
 
