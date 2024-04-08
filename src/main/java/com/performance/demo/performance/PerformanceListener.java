@@ -10,14 +10,21 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.events.WebDriverListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PerformanceListener implements WebDriverListener {
 
     private static PerformanceCollector performanceCollector;
     private static String flowName;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static String elementName;
 
@@ -106,13 +113,35 @@ public class PerformanceListener implements WebDriverListener {
     // TODO: 03.04.2024 Find a way to get action and element name here:
     @Override
     public void afterPerform(WebDriver driver, Collection<Sequence> actions) {
-        String action = "Swiping";
         String element = "Element";
+
+        LOGGER.info("-----ACTIONS-----");
+        LOGGER.info("actions count: " + actions.size());
+        for (Sequence action : actions) {
+            for (Map.Entry<String, Object> entry: action.encode().entrySet()) {
+                LOGGER.info("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+            }
+        }
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        LOGGER.info("------------------------------");
+        String action =
+                Arrays.stream(stackTrace)
+                .filter(e -> e.getClassName().contains("IMobileUtils"))
+                .reduce((first, second) -> second)
+                .get().getMethodName();
+
+        LOGGER.info("METHOD NAME: " + action);
         if (flowName != null) {
             performanceCollector.collectSnapshotBenchmarks(flowName, action, element);
             performanceCollector.collectNetBenchmarks(flowName, action, element);
         }
     }
+    @Override
+    public void beforePerform(WebDriver driver, Collection<Sequence> actions) {
+        String driverMessage = DriverListener.getMessage(true);
+        LOGGER.info("DRIVER MESSAGE BEFORE PERFORM: \n" + driverMessage);
+    }
+
 
     @Override
     public void beforeAnyWebElementCall(WebElement element, Method method, Object[] args) {

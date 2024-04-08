@@ -22,6 +22,7 @@ import com.zebrunner.agent.core.annotation.TestLabel;
 import com.zebrunner.carina.core.IAbstractTest;
 import com.zebrunner.carina.core.registrar.ownership.MethodOwner;
 import com.zebrunner.carina.utils.mobile.IMobileUtils;
+import net.bytebuddy.agent.builder.AgentBuilder;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -46,6 +47,10 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
         loginPage.checkPrivacyPolicyCheckbox();
         CarinaDescriptionPageBase carinaDescriptionPage = loginPage.clickLoginBtn();
         Assert.assertTrue(carinaDescriptionPage.isPageOpened(), "Carina description page isn't opened");
+        ChartsPageBase chartsPage = carinaDescriptionPage.navigateToChartsPage();
+        swipe(chartsPage.getElement2());
+        longTap(chartsPage.getLeftMenuButton());
+
     }
 
     @Test()
@@ -72,6 +77,7 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
         uiElements.clickOnFemaleRadioButton();
         Assert.assertTrue(uiElements.isFemaleRadioButtonSelected(), "Female radio button was not selected!");
         /*uiElements.clickOnOtherRadioButton();
+
         Assert.assertTrue(uiElements.isOthersRadioButtonSelected(), "Others radio button was not selected!");*/
     }
 
