@@ -115,15 +115,7 @@ public class PerformanceListener implements WebDriverListener {
     public void afterPerform(WebDriver driver, Collection<Sequence> actions) {
         String element = "Element";
 
-        LOGGER.info("-----ACTIONS-----");
-        LOGGER.info("actions count: " + actions.size());
-        for (Sequence action : actions) {
-            for (Map.Entry<String, Object> entry: action.encode().entrySet()) {
-                LOGGER.info("Key: " + entry.getKey() + ", Value: " + entry.getValue());
-            }
-        }
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        LOGGER.info("------------------------------");
         String action =
                 Arrays.stream(stackTrace)
                 .filter(e -> e.getClassName().contains("IMobileUtils"))
