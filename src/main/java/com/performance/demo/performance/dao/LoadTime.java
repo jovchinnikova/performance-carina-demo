@@ -8,19 +8,11 @@ import java.time.Instant;
 @Measurement(name = "load_time")
 public class LoadTime extends BaseMeasurement{
 
-    @Column(tag = true, name = "action_name")
-    private String actionName;
-
-    @Column(tag = true, name = "element_name")
-    private String elementName;
-
     @Column(name = "value")
     private Double loadTime;
 
     public LoadTime(Double loadTime, String flowName, Instant time, String userName, String actionName, String elementName) {
-        super(flowName, time, userName);
-        this.actionName = actionName;
-        this.elementName = elementName;
+        super(flowName, time, userName, actionName, elementName);
         this.loadTime = loadTime;
     }
 

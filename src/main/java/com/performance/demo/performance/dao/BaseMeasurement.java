@@ -44,6 +44,11 @@ public class BaseMeasurement implements IDriverPool {
     @Column(tag = true, name = "test_id")
     private Long testId;
 
+    @Column(tag = true, name = "action_name")
+    private String actionName;
+
+    @Column(tag = true, name = "element_name")
+    private String elementName;
 
     public BaseMeasurement(String flowName, Instant time, String userName) {
         this.osVersion = getDevice().getOsVersion();
@@ -54,6 +59,21 @@ public class BaseMeasurement implements IDriverPool {
         this.env = R.CONFIG.get("env");
         this.time = time;
         this.userName = userName;
+        this.runId = CurrentTestRun.getId().orElse(0L);
+        this.testId = CurrentTest.getId().orElse(0L);
+    }
+
+    public BaseMeasurement(String flowName, Instant time, String userName, String actionName, String elementName) {
+        this.osVersion = getDevice().getOsVersion();
+        this.appVersion = cutAppVersionIfNecessary();
+        this.deviceName = getDevice().getName();
+        this.platformName = R.CONFIG.get("capabilities.platformName").toUpperCase();
+        this.flowName = flowName;
+        this.env = R.CONFIG.get("env");
+        this.time = time;
+        this.userName = userName;
+        this.actionName = actionName;
+        this.elementName = elementName;
         this.runId = CurrentTestRun.getId().orElse(0L);
         this.testId = CurrentTest.getId().orElse(0L);
     }

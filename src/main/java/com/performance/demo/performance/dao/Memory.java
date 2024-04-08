@@ -11,17 +11,9 @@ public class Memory extends BaseMeasurement {
     @Column(name = "proportional_set_size")
     private Double usedPercent;
 
-    @Column(tag = true, name = "action_name")
-    private String actionName;
-
-    @Column(tag = true, name = "element_name")
-    private String elementName;
-
     public Memory(Double usedPercent, Instant time, String flowName, String userName, String actionName, String elementName) {
-        super(flowName, time, userName);
+        super(flowName, time, userName, actionName, elementName);
         this.usedPercent = usedPercent;
-        this.actionName = actionName;
-        this.elementName = elementName;
     }
 
     public Double getUsedPercent() {

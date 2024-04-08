@@ -17,30 +17,21 @@ import java.lang.invoke.MethodHandles;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 public class AdbPerformanceCollector extends PerformanceCollector implements IDriverPool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String WLAN0 = "wlan0";
-    private static final String WLAN1 = "wlan1";
-
     private final String bundleId = getAppPackage();
     private final GeneralParser generalParser;
     private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
 
-    private String pid;
     private String cpuCommand;
     private String memCommand;
     private String memCommand2;
-    private String netCommand;
     private String netCommand2;
     private String gfxCommand;
 
-    private Map<String, NetParser.NetRow> netRowStart;
-    private Map<String, NetParser.NetRow> netRowEnd;
     private NetParser.NetRow netRowStartNew;
     private NetParser.NetRow netRowEndNew;
 
@@ -187,9 +178,10 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     /**
      * Calculates the difference between two {@link NetParser.NetRow} instances and creates a {@link Network} instance with the results.
+     * <p>
+     * // * @param rowStart The starting {@link NetParser.NetRow} instance.
+     * // * @param rowEnd   The ending {@link NetParser.NetRow} instance.
      *
-    // * @param rowStart The starting {@link NetParser.NetRow} instance.
-    // * @param rowEnd   The ending {@link NetParser.NetRow} instance.
      * @param instant  The timestamp for when the network data is recorded.
      * @param flowName The name of the network flow.
      * @return A {@link Network} instance containing the calculated results and additional information.
@@ -209,7 +201,6 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         try {
             collectNetData2();
             LOGGER.info("Net rows:\nNetRowStart: {}\nNetRowEnd: {}", netRowStartNew, netRowEndNew);
-
             netQuantity++;
             return makeSubtraction2(instant, flowName, actionName, elementName);
         } catch (Exception e) {
@@ -250,15 +241,17 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
         int actionCount;
         if (collectLoginTime && collectExecutionTime) {
-            actionCount = netQuantity + loadTimeQty + cpuQuantity + memQuantity + 4;
-        } else if (collectLoginTime || collectExecutionTime) {
             actionCount = netQuantity + loadTimeQty + cpuQuantity + memQuantity + 3;
-        } else {
+        } else if (collectLoginTime || collectExecutionTime) {
             actionCount = netQuantity + loadTimeQty + cpuQuantity + memQuantity + 2;
+        } else {
+            actionCount = netQuantity + loadTimeQty + cpuQuantity + memQuantity + 1;
             LOGGER.warn("No time duration was collected during test execution");
         }
-        LOGGER.info("cpuQuantity: " + cpuQuantity + " , memQuantity: " + memQuantity);
-        int benchmarkCount = allBenchmarks.size() + 1;
+        LOGGER.info("cpuQuantity: " + cpuQuantity + ", memQuantity: " + memQuantity +
+                ", loadTimeQuantity: " + loadTimeQty + ", netQuantity: " + netQuantity);
+
+        int benchmarkCount = allBenchmarks.size();
 
         LOGGER.info("Action count: {} benchmark count: {}", actionCount, benchmarkCount);
         if (actionCount == benchmarkCount)
@@ -268,12 +261,11 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     }
 
     private void generateCommands() {
-        pid = executeMobileShellCommand(pidCommand).trim();
+        String pid = executeMobileShellCommand(pidCommand).trim();
         LOGGER.info("PID: " + pid);
         String nifCommand = String.format(PerformanceTypes.NIF.cmdArgs, pid);
         String nif = executeMobileShellCommand(nifCommand).trim();
         LOGGER.info("NETWORK INTERFACE: " + nif);
-        netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
         netCommand2 = String.format(PerformanceTypes.NET2.cmdArgs, pid, nif);
         cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
         memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);

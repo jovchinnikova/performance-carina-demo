@@ -17,8 +17,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PerformanceListener implements WebDriverListener {
 
@@ -35,15 +33,15 @@ public class PerformanceListener implements WebDriverListener {
         if (!SpecialKeywords.IOS.equalsIgnoreCase(WebDriverConfiguration.getCapability(CapabilityType.PLATFORM_NAME).get())) {
             try {
                 performanceCollector = new AdbPerformanceCollector();
+                performanceCollector.setUserName(userName);
+                setFlowName(flowName);
+                performanceCollector.setLoadTimeStopwatch(Stopwatch.createUnstarted());
+                performanceCollector.setCollectLoginTime(isCollectLoginTime);
+                performanceCollector.setCollectExecutionTime(isCollectExecutionTime);
+                startTracking();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.warn("There was an error during initialization of PerformanceCollector: {}", e.getMessage());
             }
-            performanceCollector.setUserName(userName);
-            setFlowName(flowName);
-            performanceCollector.setLoadTimeStopwatch(Stopwatch.createUnstarted());
-            performanceCollector.setCollectLoginTime(isCollectLoginTime);
-            performanceCollector.setCollectExecutionTime(isCollectExecutionTime);
-            startTracking();
         }
     }
 
@@ -114,24 +112,22 @@ public class PerformanceListener implements WebDriverListener {
     @Override
     public void afterPerform(WebDriver driver, Collection<Sequence> actions) {
         String element = "Element";
-
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        String action =
-                Arrays.stream(stackTrace)
-                .filter(e -> e.getClassName().contains("IMobileUtils"))
-                .reduce((first, second) -> second)
-                .get().getMethodName();
+        String action = "";
+        try {
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            action = Arrays.stream(stackTrace)
+                    .filter(e -> e.getClassName().contains("IMobileUtils"))
+                    .reduce((first, second) -> second)
+                    .get().getMethodName();
+        } catch (Exception e) {
+            LOGGER.warn("There was an error during retrieving action name: {}", e.getMessage());
+        }
 
         LOGGER.info("METHOD NAME: " + action);
         if (flowName != null) {
             performanceCollector.collectSnapshotBenchmarks(flowName, action, element);
             performanceCollector.collectNetBenchmarks(flowName, action, element);
         }
-    }
-    @Override
-    public void beforePerform(WebDriver driver, Collection<Sequence> actions) {
-        String driverMessage = DriverListener.getMessage(true);
-        LOGGER.info("DRIVER MESSAGE BEFORE PERFORM: \n" + driverMessage);
     }
 
 

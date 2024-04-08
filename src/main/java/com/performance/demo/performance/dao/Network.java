@@ -20,22 +20,14 @@ public class Network extends BaseMeasurement {
     @Column(name = "tp")
     private int transferredPackets;
 
-    @Column(tag = true, name = "action_name")
-    private String actionName;
-
-    @Column(tag = true, name = "element_name")
-    private String elementName;
-
     public Network(int bytesReceived, int receivedPackets, int transferredBytes,
                    int transferredPackets, Instant time, String flowName,
                    String userName, String actionName, String elementName) {
-        super(flowName, time, userName);
+        super(flowName, time, userName, actionName, elementName);
         this.bytesReceived = bytesReceived;
         this.receivedPackets = receivedPackets;
         this.transferredBytes = transferredBytes;
         this.transferredPackets = transferredPackets;
-        this.actionName = actionName;
-        this.elementName = elementName;
     }
 
     public int getBytesReceived() {

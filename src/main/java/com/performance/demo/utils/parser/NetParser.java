@@ -84,7 +84,7 @@ public class NetParser {
         private final long tp;
         private final long tb;
 
-        public NetRow(int st, long rb, long rp, long tp, long tb) {
+        public NetRow(int st, long rb, long rp, long tb, long tp) {
             this.st = st;
             this.rb = rb;
             this.rp = rp;
@@ -98,8 +98,8 @@ public class NetParser {
                     "st=" + st +
                     ", rb=" + rb +
                     ", rp=" + rp +
-                    ", tp=" + tp +
                     ", tb=" + tb +
+                    ", tp=" + tp +
                     '}';
         }
 
