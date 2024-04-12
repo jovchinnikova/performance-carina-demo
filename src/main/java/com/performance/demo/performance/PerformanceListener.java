@@ -149,7 +149,7 @@ public class PerformanceListener implements WebDriverListener {
             else if (performanceCollector.isCollectExecutionTime())
                 performanceCollector.setExecutionStopwatch(Stopwatch.createStarted());
 
-            performanceCollector.collectNetData2();
+            performanceCollector.collectNetData();
         }
     }
 

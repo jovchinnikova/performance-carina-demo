@@ -103,6 +103,20 @@ public class NetParser {
                     '}';
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            NetRow other = (NetRow) obj;
+            long sumThis = this.rb + this.rp + this.tb + this.tp;
+            long sumOther = other.rb + other.rp + other.tb + other.tp;
+            return sumThis == sumOther;
+        }
+
         public int getSt() {
             return st;
         }

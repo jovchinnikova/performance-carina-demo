@@ -75,7 +75,7 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     public void collectNetBenchmarks(String flowName, String actionName, String elementName) {
         Instant instant = Instant.now();
-        Network netValue = subtractNetData2(instant, flowName, actionName, elementName);
+        Network netValue = subtractNetData(instant, flowName, actionName, elementName);
         try {
             if (netValue != null) {
                 allBenchmarks.add(netValue);
@@ -135,9 +135,9 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     protected abstract GfxParser.GfxRow collectGfxBenchmarks();
 
-    protected abstract Network subtractNetData2(Instant instant, String flowName, String actionName, String elementName);
+    protected abstract Network subtractNetData(Instant instant, String flowName, String actionName, String elementName);
 
-    protected abstract void collectNetData2();
+    protected abstract void collectNetData();
 
     protected abstract boolean collectAllBenchmarks(String flowName);
 

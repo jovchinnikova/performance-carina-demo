@@ -29,11 +29,12 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     private String cpuCommand;
     private String memCommand;
     private String memCommand2;
+    private String netCommand;
     private String netCommand2;
     private String gfxCommand;
 
-    private NetParser.NetRow netRowStartNew;
-    private NetParser.NetRow netRowEndNew;
+    private NetParser.NetRow netRowStart;
+    private NetParser.NetRow netRowEnd;
 
     private int cpuQuantity = 0;
     private int memQuantity = 0;
@@ -49,9 +50,9 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         CPU("ps -p %s -o %%cpu="),
         MEM("dumpsys meminfo %s | awk '/TOTAL PSS:/ {print $3} /TOTAL:/ {print $2}'"),
         MEM2("dumpsys meminfo %s"),
-        NIF("dumpsys netstats %s | grep 'defaultNetwork=true' | grep -m 1 'iface=' | awk -F '=' '{split($2, a, \" \"); print a[1]}'"),
+        NIF("dumpsys netstats %s | grep 'iface=' | grep 'defaultNetwork=true' | awk -F '=' '{split($2, a, \" \"); print a[1]}' | sort | uniq"),
         NET("cat proc/%s/net/dev"),
-        NET2("cat proc/%s/net/dev | grep '%s' | awk '{print $1,$2,$3,$10,$11}'"),
+        NET2("cat proc/%s/net/dev | grep -w '%s' | awk '{print $1,$2,$3,$10,$11}'"),
         PID("pgrep -f %s"),
         GFX("dumpsys gfxinfo %s framestats");
 
@@ -160,19 +161,32 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     }
 
     @Override
-    protected void collectNetData2() {
-        String netData = collectBenchmark(netCommand2);
-        String[] netRow = netData.split(" ");
-        NetParser.NetRow netRowObj = new NetParser.NetRow(0,
-                Integer.parseInt(netRow[1]),
-                Integer.parseInt(netRow[2]),
-                Integer.parseInt(netRow[3]),
-                Integer.parseInt(netRow[4]));
+    protected void collectNetData() {
+        String netData = collectBenchmark(netCommand);
+        LOGGER.info("NetData:\n" + netData);
 
-        if (netRowStartNew == null) {
-            netRowStartNew = netRowObj;
-        } else {
-            netRowEndNew = netRowObj;
+        String[] lines = netData.split("\\r?\\n");
+        long[] totalColumns = new long[5];
+
+        for (String line : lines) {
+            String[] parts = line.trim().split("\\s+");
+            if (parts.length >= 5) {
+                for (int i = 1; i <= 4; i++) {
+                    totalColumns[i] += Long.parseLong(parts[i]);
+                }
+            }
+        }
+
+        NetParser.NetRow netRowObj = new NetParser.NetRow(0,
+                totalColumns[1],
+                totalColumns[2],
+                totalColumns[3],
+                totalColumns[4]);
+
+        if (netRowStart == null) {
+            netRowStart = netRowEnd = netRowObj;
+        } else if (!netRowObj.equals(netRowStart)) {
+            netRowEnd = netRowObj;
         }
     }
 
@@ -187,22 +201,23 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
      * @return A {@link Network} instance containing the calculated results and additional information.
      */
 
-    private Network makeSubtraction2(Instant instant, String flowName, String actionName, String elementName) {
-        int rbResult = (int) (netRowEndNew.getRb() - netRowStartNew.getRb());
-        int rpResult = (int) (netRowEndNew.getRp() - netRowStartNew.getRp());
-        int tbResult = (int) (netRowEndNew.getTb() - netRowStartNew.getTb());
-        int tpResult = (int) (netRowEndNew.getTp() - netRowStartNew.getTp());
+    private Network makeSubtraction(Instant instant, String flowName, String actionName, String elementName) {
+        long rbResult = netRowEnd.getRb() - netRowStart.getRb();
+        long rpResult = netRowEnd.getRp() - netRowStart.getRp();
+        long tbResult = netRowEnd.getTb() - netRowStart.getTb();
+        long tpResult = netRowEnd.getTp() - netRowStart.getTp();
+        netRowStart = netRowEnd;
 
         return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName, actionName, elementName);
     }
 
     @Override
-    protected Network subtractNetData2(Instant instant, String flowName, String actionName, String elementName) {
+    protected Network subtractNetData(Instant instant, String flowName, String actionName, String elementName) {
         try {
-            collectNetData2();
-            LOGGER.info("Net rows:\nNetRowStart: {}\nNetRowEnd: {}", netRowStartNew, netRowEndNew);
+            collectNetData();
+            LOGGER.info("Net rows:\nNetRowStart: {}\nNetRowEnd: {}", netRowStart, netRowEnd);
             netQuantity++;
-            return makeSubtraction2(instant, flowName, actionName, elementName);
+            return makeSubtraction(instant, flowName, actionName, elementName);
         } catch (Exception e) {
             LOGGER.warn("Exception: " + e);
             LOGGER.warn("No network data was received for the start or the end of the test");
@@ -264,13 +279,27 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         String pid = executeMobileShellCommand(pidCommand).trim();
         LOGGER.info("PID: " + pid);
         String nifCommand = String.format(PerformanceTypes.NIF.cmdArgs, pid);
-        String nif = executeMobileShellCommand(nifCommand).trim();
-        LOGGER.info("NETWORK INTERFACE: " + nif);
-        netCommand2 = String.format(PerformanceTypes.NET2.cmdArgs, pid, nif);
+        String nifOutput = executeMobileShellCommand(nifCommand).trim();
+        String[] nifs = nifOutput.split("\\r?\\n");
+        LOGGER.info("NETWORK INTERFACES: " + Arrays.toString(nifs));
+        netCommand = String.format(netCommandBuilder(nifs), pid);
         cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
         memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
         memCommand2 = String.format(PerformanceTypes.MEM2.cmdArgs, bundleId);
         gfxCommand = String.format(PerformanceTypes.GFX.cmdArgs, bundleId);
+    }
+
+    private String netCommandBuilder(String[] nifs) {
+        StringBuilder cmdBuilder = new StringBuilder();
+        cmdBuilder.append("cat proc/%s/net/dev | grep -E '(");
+        for (int i = 0; i < nifs.length; i++) {
+            cmdBuilder.append(nifs[i]);
+            if (i < nifs.length - 1) {
+                cmdBuilder.append("|");
+            }
+        }
+        cmdBuilder.append(")' | awk '{print $1,$2,$3,$10,$11}'");
+        return cmdBuilder.toString();
     }
 
     private String getAppPackage() {
