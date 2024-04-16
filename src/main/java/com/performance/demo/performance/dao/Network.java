@@ -9,28 +9,28 @@ import java.time.Instant;
 public class Network extends BaseMeasurement {
 
     @Column(name = "rb")
-    private int bytesReceived;
+    private long bytesReceived;
 
     @Column(name = "rp")
-    private int receivedPackets;
+    private long receivedPackets;
 
     @Column(name = "tb")
-    private int transferredBytes;
+    private long transferredBytes;
 
     @Column(name = "tp")
-    private int transferredPackets;
+    private long transferredPackets;
 
-    public Network(int bytesReceived, int receivedPackets, int transferredBytes,
-                   int transferredPackets, Instant time, String flowName,
-                   String userName) {
-        super(flowName, time, userName);
+    public Network(long bytesReceived, long receivedPackets, long transferredBytes,
+                   long transferredPackets, Instant time, String flowName,
+                   String userName, String actionName, String elementName) {
+        super(flowName, time, userName, actionName, elementName);
         this.bytesReceived = bytesReceived;
         this.receivedPackets = receivedPackets;
         this.transferredBytes = transferredBytes;
         this.transferredPackets = transferredPackets;
     }
 
-    public int getBytesReceived() {
+    public long getBytesReceived() {
         return bytesReceived;
     }
 
@@ -38,7 +38,7 @@ public class Network extends BaseMeasurement {
         this.bytesReceived = bytesReceived;
     }
 
-    public int getReceivedPackets() {
+    public long getReceivedPackets() {
         return receivedPackets;
     }
 
@@ -46,7 +46,7 @@ public class Network extends BaseMeasurement {
         this.receivedPackets = receivedPackets;
     }
 
-    public int getTransferredBytes() {
+    public double getTransferredBytes() {
         return transferredBytes;
     }
 
@@ -54,7 +54,7 @@ public class Network extends BaseMeasurement {
         this.transferredBytes = transferredBytes;
     }
 
-    public int getTransferredPackets() {
+    public long getTransferredPackets() {
         return transferredPackets;
     }
 

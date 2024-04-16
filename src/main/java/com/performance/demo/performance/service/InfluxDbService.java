@@ -1,14 +1,14 @@
 package com.performance.demo.performance.service;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.client.domain.WritePrecision;
 import com.performance.demo.performance.dao.BaseMeasurement;
 import com.zebrunner.carina.utils.R;
+
+import java.util.List;
+import java.util.Objects;
 
 public class InfluxDbService {
     private String token;

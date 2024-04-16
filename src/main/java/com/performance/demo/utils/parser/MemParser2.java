@@ -31,7 +31,7 @@ public class MemParser2 {
             Matcher matcher2 = valuePattern.matcher(line);
             if (matcher2.matches() && foundDel) {
                 String val = matcher2.group(1).replace(",", "");
-                Integer totalPss = Integer.parseInt(val);
+                Double totalPss = Double.parseDouble(val);
                 memRow = new MemParser.MemRow(totalPss);
                 break;
             }
