@@ -1,6 +1,9 @@
 package com.performance.demo.performance.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.influxdb.annotations.Column;
+import com.performance.demo.performance.ios.pojo.EventType;
+import com.performance.demo.performance.ios.pojo.TestEvent;
 import com.zebrunner.agent.core.registrar.CurrentTest;
 import com.zebrunner.agent.core.registrar.CurrentTestRun;
 import com.zebrunner.carina.utils.R;
@@ -32,8 +35,9 @@ public class BaseMeasurement implements IDriverPool {
     @Column(tag = true, name = "env")
     private String env;
 
+    @JsonIgnore
     @Column(timestamp = true)
-    private Instant time;
+    protected Instant time;
 
     @Column(tag = true, name = "username")
     private String userName;
@@ -43,6 +47,24 @@ public class BaseMeasurement implements IDriverPool {
 
     @Column(tag = true, name = "test_id")
     private Long testId;
+
+    @Column(tag = true, name = "event_type")
+    private EventType eventType;
+
+    @Column(tag = true, name = "element_name")
+    private String elementName;
+
+    public BaseMeasurement() {
+        this.osVersion = getDevice().getOsVersion();
+        this.appVersion = cutAppVersionIfNecessary();
+        this.deviceName = getDevice().getName();
+        this.platformName = R.CONFIG.get("capabilities.platformName").toUpperCase();
+        this.env = R.CONFIG.get("env");
+        this.runId = CurrentTestRun.getId().orElse(0L);
+        this.testId = CurrentTest.getId().orElse(0L);
+        this.eventType = EventType.NONE;
+        this.elementName = "";
+    }
 
     public BaseMeasurement(String flowName, Instant time, String userName) {
         this.osVersion = getDevice().getOsVersion();
@@ -151,4 +173,8 @@ public class BaseMeasurement implements IDriverPool {
         this.testId = testId;
     }
 
+    public void setEventType(TestEvent testEvent) {
+        this.eventType = testEvent.getEventType();
+        this.elementName = testEvent.getElementName();
+    }
 }

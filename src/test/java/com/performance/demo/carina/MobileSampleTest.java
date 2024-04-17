@@ -33,7 +33,7 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
     @Test()
     @MethodOwner(owner = "jovchinnikova")
     @TestLabel(name = "feature", value = {"mobile", "regression"})
-    @PerformanceTest(flowName = "login_flow", userName = user, collectLoginTime = true, collectExecutionTime = false)
+    @PerformanceTest(flowName = "login_flow", userName = user, collectLoginTime = true)
     public void testLoginUser() {
         String password = RandomStringUtils.randomAlphabetic(10);
         WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);

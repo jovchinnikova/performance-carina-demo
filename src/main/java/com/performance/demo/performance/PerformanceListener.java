@@ -1,12 +1,11 @@
 package com.performance.demo.performance;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.support.events.WebDriverListener;
-
 import com.google.common.base.Stopwatch;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.support.events.WebDriverListener;
 
 public class PerformanceListener implements WebDriverListener {
 

@@ -9,12 +9,12 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface PerformanceTest {
 
-    String flowName();
+    String flowName() default "";
 
-    String userName();
+    String userName() default "";
 
-    boolean collectLoginTime();
+    boolean collectLoginTime() default false;
 
-    boolean collectExecutionTime();
+    boolean collectExecutionTime() default false;
 
 }

@@ -9,6 +9,7 @@ public enum GrafanaLinkParameter {
     END_TIME("end_time", 0.0), APP_VERSION("app_version", BaseMeasurement.cutAppVersionIfNecessary()),
     PLATFORM("platform", R.CONFIG.get("capabilities.platformName").toUpperCase()), ENV("environment", R.CONFIG.get("env")),
     DEVICE_NAME("device_name", ""), OS_VERSION("os_version", ""), FLOW("flow", ""),
+    METRIC_NAME("metric_name", ""),
     USER("user", ""), ORG_ID("org", R.TESTDATA.get("grafana_org_id")), TEST_ID("test_id", 0),
     RUN_ID("run_id", 0), TOKEN("token", R.TESTDATA.getDecrypted("grafana_token"));
 
