@@ -1,63 +1,59 @@
 package com.performance.demo.performance;
 
-import java.lang.invoke.MethodHandles;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.google.common.collect.ImmutableMap;
 import com.performance.demo.performance.dao.Gfx;
 import com.performance.demo.performance.dao.Network;
-import com.performance.demo.utils.parser.CoreParser;
 import com.performance.demo.utils.parser.GeneralParser;
 import com.performance.demo.utils.parser.GfxParser;
 import com.performance.demo.utils.parser.MemParser;
 import com.performance.demo.utils.parser.NetParser;
+import com.zebrunner.carina.webdriver.IDriverPool;
 import org.openqa.selenium.HasCapabilities;
 import org.openqa.selenium.JavascriptExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-import com.zebrunner.carina.webdriver.IDriverPool;
-
-import io.appium.java_client.android.HasSupportedPerformanceDataType;
+import java.lang.invoke.MethodHandles;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class AdbPerformanceCollector extends PerformanceCollector implements IDriverPool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String WLAN0 = "wlan0";
-    private static final String WLAN1 = "wlan1";
-
     private final String bundleId = getAppPackage();
     private final GeneralParser generalParser;
-    private final String cpuCommand = generateCpuCommand();
-    private final String errorOutput = String.format("No process found for: %s%n", bundleId);
     private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
 
-    private Map<String, NetParser.NetRow> netRowStart;
-    private Map<String, NetParser.NetRow> netRowEnd;
+    private String cpuCommand;
+    private String memCommand;
+    private String memCommand2;
+    private String netCommand;
+    private String netCommand2;
+    private String gfxCommand;
+
+    private NetParser.NetRow netRowStart;
+    private NetParser.NetRow netRowEnd;
 
     private int cpuQuantity = 0;
     private int memQuantity = 0;
+    private int netQuantity = 0;
 
     public AdbPerformanceCollector() {
         super();
         this.generalParser = new GeneralParser(bundleId);
+        generateCommands();
     }
 
     public enum PerformanceTypes {
-        CPU("top -n 1 | grep -E \"%s|%s\""),
-        MEM("dumpsys meminfo %s"),
+        CPU("ps -p %s -o %%cpu="),
+        MEM("dumpsys meminfo %s | awk '/TOTAL PSS:/ {print $3} /TOTAL:/ {print $2}'"),
+        MEM2("dumpsys meminfo %s"),
+        NIF("dumpsys netstats %s | grep 'iface=' | grep 'defaultNetwork=true' | awk -F '=' '{split($2, a, \" \"); print a[1]}' | sort | uniq"),
         NET("cat proc/%s/net/dev"),
-        PID("pidof -s %s"),
-        CORE("cat /proc/stat"),
-        USERID("dumpsys package %s | grep userId"),
+        NET2("cat proc/%s/net/dev | grep -w '%s' | awk '{print $1,$2,$3,$10,$11}'"),
+        PID("pgrep -f %s"),
         GFX("dumpsys gfxinfo %s framestats");
 
         private final String cmdArgs;
@@ -67,166 +63,174 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         }
     }
 
-    @Override
-    protected Double collectCpuBenchmarks() {
-        String cpuOutput = "";
-
+    /**
+     * Collects performance output data by executing a given adb shell command.
+     * Attempts to collect data up to 3 times if no data is initially returned.
+     *
+     * @param command adb shell command to be executed.
+     * @return String benchmark output, or null if data collection fails.
+     */
+    private String collectBenchmark(String command) {
+        String output = "";
         try {
-            for (int x = 0; x <= 7; x++) {
-                cpuOutput = executeMobileShellCommand(cpuCommand);
-                if (!cpuOutput.isEmpty()) {
-                    cpuQuantity++;
+            for (int attempt = 1; attempt <= 3; attempt++) {
+                output = executeMobileShellCommand(command).trim();
+                if (!output.isEmpty()) {
                     break;
                 }
-                LOGGER.info("# Attempts for cpu: {}", (x + 1));
+                LOGGER.info("# Attempts for '{}' command: {}", command, attempt);
             }
         } catch (Exception e) {
             LOGGER.warn("There was an error during executing adb shell command");
         }
+        return output;
+    }
 
-        cpuNotNull = !cpuOutput.isEmpty();
+    /**
+     * Collects CPU benchmark data by executing a shell command and processing the output.
+     *
+     * @return The calculated CPU benchmark value, or null if data collection fails.
+     */
+    @Override
+    protected Double collectCpuBenchmarks() {
+        Double cpuValue = null;
+        String cpuOutput = collectBenchmark(cpuCommand);
 
-        LOGGER.info(cpuOutput);
-        String[] cpuData = cpuOutput.trim().split("\\s+");
-        LOGGER.info("cpuArray: {}", Arrays.toString(cpuData));
-        LOGGER.info("cpuArray size: {}", cpuData.length);
-        int cpuIndex = 8;
-        if (cpuData.length > 12) {
-            cpuIndex++;
-        }
-
-        String coreOutput = executeMobileShellCommand(PerformanceTypes.CORE.cmdArgs);
-
-        CoreParser.CoreRow coreRow = (CoreParser.CoreRow) generalParser.parse(Arrays.asList(coreOutput.split("\\n")),
-                PerformanceTypes.CORE);
-        int coreQuantity = coreRow.getCoreQuantity();
-        double cpuValue = 0.0;
-        try {
-            cpuValue = Double.parseDouble(cpuData[cpuIndex]) / coreQuantity;
-            LOGGER.info("CPU value: {}", cpuValue);
-        } catch (Exception e) {
-            LOGGER.warn("No data was received for cpu");
+        if (!cpuOutput.isEmpty()) {
+            try {
+                LOGGER.info("% cpu: {}", cpuOutput);
+                cpuValue = Double.parseDouble(cpuOutput);
+            } catch (Exception e) {
+                LOGGER.warn("There was an error during parsing cpu command output");
+            }
+            cpuQuantity++;
         }
 
         return cpuValue;
     }
 
-    @Override
-    protected MemParser.MemRow collectMemoryBenchmarks() {
-        String memOutput = "";
-        String memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
+    /**
+     * Collects Memory benchmark data by executing a MEM or MEM2 shell command and processing the output.
+     *
+     * @return The calculated memory benchmark value, or null if data collection fails.
+     */
+    protected Double collectMemoryBenchmarks() {
+        Double memValue = null;
+        String memOutput = collectBenchmark(memCommand);
+        String memOutput2;
 
-        for (int x = 0; x <= 7; x++) {
-            memOutput = executeMobileShellCommand(memCommand);
-            if (!memOutput.isEmpty() && !errorOutput.equals(memOutput)) {
+        if (!memOutput.isEmpty()) {
+            try {
+                LOGGER.info("total pss: {}", memOutput);
+                memValue = Double.parseDouble(memOutput);
                 memQuantity++;
-                break;
+            } catch (Exception e) {
+                LOGGER.warn("There was an error during parsing MEM command output. Trying MEM2...");
+                memOutput2 = collectBenchmark(memCommand2);
+                try {
+                    memValue = ((MemParser.MemRow) generalParser.parse(Arrays.asList(memOutput2.split("\\n")), PerformanceTypes.MEM2)).getTotalPss();
+                    memQuantity++;
+                } catch (Exception x) {
+                    LOGGER.warn("There was an error during parsing MEM2 command output. Check ADB.");
+                }
             }
-            LOGGER.info("# Attempts for pss: {}", (x + 1));
+        } else {
+            LOGGER.warn("There was an empty output for MEM command. Trying MEM2...");
+            memOutput2 = collectBenchmark(memCommand2);
+            try {
+                memValue = ((MemParser.MemRow) generalParser.parse(Arrays.asList(memOutput2.split("\\n")), PerformanceTypes.MEM2)).getTotalPss();
+                memQuantity++;
+            } catch (Exception x) {
+                LOGGER.warn("There was an error during parsing MEM2 command output. Check ADB.");
+            }
         }
 
-        MemParser.MemRow row = (MemParser.MemRow) generalParser.parse(Arrays.asList(memOutput.split("\\n")), PerformanceTypes.MEM);
-        try {
-            LOGGER.info("total pss: {}", row.getTotalPss());
-        } catch (Exception e) {
-            LOGGER.warn("No data was received for memory during parsing");
-        }
-        return row;
+        return memValue;
     }
 
+    /**
+     * Collects GFX benchmark data by executing a GFX command and parsing the output.
+     *
+     * @return GfxRow containing the parsed GFX benchmark results.
+     */
     @Override
     protected GfxParser.GfxRow collectGfxBenchmarks() {
-        String output = "";
-        String gfxCommand = String.format(PerformanceTypes.GFX.cmdArgs, bundleId);
-
-        for (int x = 0; x <= 7; x++) {
-            output = executeMobileShellCommand(gfxCommand);
-            if (!output.equals(errorOutput)) {
-                break;
-            }
-            LOGGER.info("# Attempts: {}", (x + 1));
-        }
+        String output = collectBenchmark(gfxCommand);
 
         return (GfxParser.GfxRow) generalParser.parse(Arrays.asList(output.split("\\n")), PerformanceTypes.GFX);
     }
 
     @Override
-    public void collectNetBenchmarks() {
-        String pid;
-        String netData = "";
+    protected void collectNetData() {
+        String netData = collectBenchmark(netCommand);
+        LOGGER.info("NetData:\n" + netData);
 
-        pid = executeMobileShellCommand(pidCommand).replaceAll("\\s+", "");
-        LOGGER.info("PID: {} ", pid);
+        String[] lines = netData.split("\\r?\\n");
+        long[] totalColumns = new long[5];
 
-        String netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
-
-        for (int x = 0; x <= 7; x++) {
-            netData = executeMobileShellCommand(netCommand);
-            if (!netData.isEmpty()) {
-                break;
+        for (String line : lines) {
+            String[] parts = line.trim().split("\\s+");
+            if (parts.length >= 5) {
+                for (int i = 1; i <= 4; i++) {
+                    totalColumns[i] += Long.parseLong(parts[i]);
+                }
             }
-            LOGGER.info("# Attempts: {}", (x + 1));
         }
 
-        String[] netOutput = netData.split("\\n");
-
-        Map<String, NetParser.NetRow> netRow = generalParser.parseNet(List.of(netOutput));
-
-        try {
-            netRow.forEach((type, row) -> LOGGER.info("Net data type: {}, Net Row: {}", type, row));
-        } catch (Exception e) {
-            LOGGER.warn("There was an error during parsing of netdata");
-        }
+        NetParser.NetRow netRowObj = new NetParser.NetRow(0,
+                totalColumns[1],
+                totalColumns[2],
+                totalColumns[3],
+                totalColumns[4]);
 
         if (netRowStart == null) {
-            netRowStart = netRow;
-        } else {
-            netRowEnd = netRow;
+            netRowStart = netRowEnd = netRowObj;
+        } else if (!netRowObj.equals(netRowStart)) {
+            netRowEnd = netRowObj;
         }
     }
 
-    private Network makeSubtraction(NetParser.NetRow rowStart, NetParser.NetRow rowEnd, Instant instant, String flowName) {
-        int rbResult = (int) (rowEnd.getRb() - rowStart.getRb());
-        int rpResult = (int) (rowEnd.getRp() - rowStart.getRp());
-        int tbResult = (int) (rowEnd.getTb() - rowStart.getTb());
-        int tpResult = (int) (rowEnd.getTp() - rowStart.getTp());
+    /**
+     * Calculates the difference between two {@link NetParser.NetRow} instances and creates a {@link Network} instance with the results.
+     * <p>
+     * // * @param rowStart The starting {@link NetParser.NetRow} instance.
+     * // * @param rowEnd   The ending {@link NetParser.NetRow} instance.
+     *
+     * @param instant  The timestamp for when the network data is recorded.
+     * @param flowName The name of the network flow.
+     * @return A {@link Network} instance containing the calculated results and additional information.
+     */
 
-        return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName);
+    private Network makeSubtraction(Instant instant, String flowName, String actionName, String elementName) {
+        long rbResult = netRowEnd.getRb() - netRowStart.getRb();
+        long rpResult = netRowEnd.getRp() - netRowStart.getRp();
+        long tbResult = netRowEnd.getTb() - netRowStart.getTb();
+        long tpResult = netRowEnd.getTp() - netRowStart.getTp();
+        netRowStart = netRowEnd;
+
+        return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName, actionName, elementName);
     }
 
-    private void subtractNetData(Instant instant, String flowName) {
+    @Override
+    protected Network subtractNetData(Instant instant, String flowName, String actionName, String elementName) {
         try {
-            Network resultRow;
-            if (netRowStart.size() > 1 && netRowEnd.size() > 1) {
-                Network netWlan0 = makeSubtraction(netRowStart.get(WLAN0), netRowEnd.get(WLAN0), instant, flowName);
-                Network netWlan1 = makeSubtraction(netRowStart.get(WLAN1), netRowEnd.get(WLAN1), instant, flowName);
-                if (netWlan0.getBytesReceived() != 0 && netWlan0.getTransferredBytes() != 0 && netWlan0.getReceivedPackets() != 0
-                        && netWlan0.getTransferredPackets() != 0) {
-                    resultRow = netWlan0;
-                } else {
-                    resultRow = netWlan1;
-                }
-            } else {
-                String expectedType;
-                if (netRowStart.containsKey(WLAN0) && netRowEnd.containsKey(WLAN0)) {
-                    expectedType = WLAN0;
-                } else {
-                    expectedType = WLAN1;
-                }
-                resultRow = makeSubtraction(netRowStart.get(expectedType), netRowEnd.get(expectedType), instant, flowName);
-            }
-
-            if (resultRow.getBytesReceived() != 0 && resultRow.getTransferredBytes() != 0 && resultRow.getReceivedPackets() != 0
-                    && resultRow.getTransferredPackets() != 0) {
-                allBenchmarks.add(resultRow);
-            } else {
-                LOGGER.info("Skipping writing net data to influx because new bucket didn't start");
-            }
+            collectNetData();
+            LOGGER.info("Net rows:\nNetRowStart: {}\nNetRowEnd: {}", netRowStart, netRowEnd);
+            netQuantity++;
+            return makeSubtraction(instant, flowName, actionName, elementName);
         } catch (Exception e) {
+            LOGGER.warn("Exception: " + e);
             LOGGER.warn("No network data was received for the start or the end of the test");
         }
+        return null;
     }
 
+    /**
+     * Collects all benchmarks and evaluates if all expected data points have been successfully collected.
+     *
+     * @param flowName The name of the flow for which benchmarks are being collected.
+     * @return true if all expected benchmarks have been collected, false otherwise.
+     */
     @Override
     public boolean collectAllBenchmarks(String flowName) {
         Instant instant = Instant.now();
@@ -248,20 +252,19 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
             LOGGER.warn("No data was received for gfx");
         }
 
-        collectNetBenchmarks();
-        subtractNetData(instant, flowName);
-
         boolean isAllDataCollected = false;
 
         int actionCount;
         if (collectLoginTime && collectExecutionTime) {
-            actionCount = cpuQuantity + memQuantity + 4;
+            actionCount = netQuantity + loadTimeQty + cpuQuantity + memQuantity + 3;
         } else if (collectLoginTime || collectExecutionTime) {
-            actionCount = cpuQuantity + memQuantity + 3;
+            actionCount = netQuantity + loadTimeQty + cpuQuantity + memQuantity + 2;
         } else {
-            actionCount = cpuQuantity + memQuantity + 2;
+            actionCount = netQuantity + loadTimeQty + cpuQuantity + memQuantity + 1;
             LOGGER.warn("No time duration was collected during test execution");
         }
+        LOGGER.info("cpuQuantity: " + cpuQuantity + ", memQuantity: " + memQuantity +
+                ", loadTimeQuantity: " + loadTimeQty + ", netQuantity: " + netQuantity);
 
         int benchmarkCount = allBenchmarks.size();
 
@@ -272,53 +275,31 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         return isAllDataCollected;
     }
 
-    /**
-     * Old way of getting net data, works only for Android 11 and 12, depends on the bucket start
-     * St values should be equal during subtracting
-     */
-    protected NetParser.NetRow collectNetBenchmarksOld() {
-        String id;
-        String userId = "";
-        String netData = "";
-
-        if ("11".equals(getDevice().getOsVersion()) || "12".equals(getDevice().getOsVersion())) {
-
-            Pattern userIdPattern = Pattern.compile("\\s*userId=(\\d*)");
-            String userIdCommand = String.format(PerformanceTypes.USERID.cmdArgs, bundleId);
-
-            id = executeMobileShellCommand(userIdCommand).replaceAll("\\s+", "");
-            LOGGER.info("UID output: {}", id);
-            Matcher m = userIdPattern.matcher(id);
-            if (m.matches()) {
-                userId = m.group(1);
-                LOGGER.info("UserId: {}", userId);
-            }
-
-            for (int x = 0; x <= 7; x++) {
-                netData = executeMobileShellCommand("dumpsys netstats detail");
-                if (netData.contains("uid=" + userId)) {
-                    break;
-                }
-                LOGGER.info("# Attempts: {} ", (x + 1));
-            }
-        }
-
-        String[] netOutput = netData.split("\\n");
-
-        NetParser.NetRow netRow = (NetParser.NetRow) generalParser.parseNet(List.of(netOutput), getDevice(), userId);
-
-        try {
-            LOGGER.info("Net Row: {}", netRow);
-        } catch (Exception e) {
-            LOGGER.warn("There was an error during parsing of netdata");
-        }
-        return netRow;
+    private void generateCommands() {
+        String pid = executeMobileShellCommand(pidCommand).trim();
+        LOGGER.info("PID: " + pid);
+        String nifCommand = String.format(PerformanceTypes.NIF.cmdArgs, pid);
+        String nifOutput = executeMobileShellCommand(nifCommand).trim();
+        String[] nifs = nifOutput.split("\\r?\\n");
+        LOGGER.info("NETWORK INTERFACES: " + Arrays.toString(nifs));
+        netCommand = String.format(netCommandBuilder(nifs), pid);
+        cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
+        memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
+        memCommand2 = String.format(PerformanceTypes.MEM2.cmdArgs, bundleId);
+        gfxCommand = String.format(PerformanceTypes.GFX.cmdArgs, bundleId);
     }
 
-    private String generateCpuCommand() {
-        String processName1 = bundleId.substring(0, 14).concat("+");
-        String processName2 = bundleId.substring(0, 15).concat("+");
-        return String.format(PerformanceTypes.CPU.cmdArgs, processName1, processName2);
+    private String netCommandBuilder(String[] nifs) {
+        StringBuilder cmdBuilder = new StringBuilder();
+        cmdBuilder.append("cat proc/%s/net/dev | grep -E '(");
+        for (int i = 0; i < nifs.length; i++) {
+            cmdBuilder.append(nifs[i]);
+            if (i < nifs.length - 1) {
+                cmdBuilder.append("|");
+            }
+        }
+        cmdBuilder.append(")' | awk '{print $1,$2,$3,$10,$11}'");
+        return cmdBuilder.toString();
     }
 
     private String getAppPackage() {
@@ -328,45 +309,6 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     private String executeMobileShellCommand(String command) {
         return (String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
                 ImmutableMap.of("command", "", "args", Collections.singletonList(command)));
-    }
-
-    private HashMap<String, Double> getPerfDataFromAppium(PerformanceTypes performanceType) {
-        return parsePerfData(((HasSupportedPerformanceDataType) getDriver()).getPerformanceData(
-                bundleId, performanceType.cmdArgs, 2));
-    }
-
-    private static HashMap<String, Double> parsePerfData(List<List<Object>> data) {
-        HashMap<String, Double> readableData = new HashMap<>();
-        for (int i = 0; i < data.get(0).size(); i++) {
-            double val;
-            if (data.get(1).get(i) == null) {
-                val = 0;
-            } else {
-                val = Double.parseDouble((String) data.get(1).get(i));
-            }
-            readableData.put((String) data.get(0).get(i), val);
-        }
-        return readableData;
-    }
-
-    public GeneralParser getGeneralParser() {
-        return generalParser;
-    }
-
-    public String getCpuCommand() {
-        return cpuCommand;
-    }
-
-    public String getBundleId() {
-        return bundleId;
-    }
-
-    public String getErrorOutput() {
-        return errorOutput;
-    }
-
-    public String getPidCommand() {
-        return pidCommand;
     }
 
 }

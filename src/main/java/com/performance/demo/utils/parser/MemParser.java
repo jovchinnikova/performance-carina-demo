@@ -30,7 +30,7 @@ public class MemParser {
 
             Matcher m2 = TOTAL_VALUES.matcher(line);
             if (m2.matches() && foundDel) {
-                Integer totalPss = Integer.parseInt(m2.group(1));
+                Double totalPss = Double.parseDouble(m2.group(1));
                 memRow = new MemRow(totalPss);
                 break;
             }
@@ -39,18 +39,14 @@ public class MemParser {
     }
 
     public static class MemRow implements Row {
-        private Integer totalPss;
+        private Double totalPss;
 
-        public MemRow(Integer totalPss) {
+        public MemRow(Double totalPss) {
             this.totalPss = totalPss;
         }
 
-        public Integer getTotalPss() {
+        public Double getTotalPss() {
             return totalPss;
-        }
-
-        public void setTotalPss(Integer totalPss) {
-            this.totalPss = totalPss;
         }
     }
 

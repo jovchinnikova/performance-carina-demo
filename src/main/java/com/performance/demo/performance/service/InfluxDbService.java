@@ -1,8 +1,5 @@
 package com.performance.demo.performance.service;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApiBlocking;
@@ -16,6 +13,9 @@ import com.performance.demo.performance.ios.pojo.system.Event;
 import com.performance.demo.performance.ios.pojo.system.Graphics;
 import com.performance.demo.performance.ios.pojo.system.SysmonMonitor;
 import com.zebrunner.carina.utils.R;
+
+import java.util.List;
+import java.util.Objects;
 
 public class InfluxDbService {
     private String token;

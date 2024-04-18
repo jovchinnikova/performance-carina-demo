@@ -79,6 +79,12 @@ public class BaseMeasurement implements IDriverPool {
         this.testId = CurrentTest.getId().orElse(0L);
     }
 
+    public BaseMeasurement(String flowName, Instant time, String userName, EventType eventType, String elementName) {
+        this(flowName, time, userName);
+        this.eventType = eventType;
+        this.elementName = elementName;
+    }
+
     public static String cutAppVersionIfNecessary() {
         String appVersionRegex = R.TESTDATA.get("app_version_regex");
         String version = R.CONFIG.get("app_version");
