@@ -2,6 +2,7 @@ package com.performance.demo.performance;
 
 import com.google.common.base.Stopwatch;
 import com.performance.demo.performance.dao.*;
+import com.performance.demo.performance.ios.pojo.EventType;
 import com.performance.demo.performance.service.InfluxDbService;
 import com.performance.demo.utils.parser.GfxParser;
 import com.zebrunner.carina.utils.R;
@@ -33,7 +34,7 @@ public abstract class PerformanceCollector implements IDriverPool {
     private Stopwatch executionStopwatch;
     private Stopwatch loadTimeStopwatch;
 
-    private String actionName;
+    private EventType eventType;
     private String elementName;
 
     protected String userName;
@@ -48,11 +49,11 @@ public abstract class PerformanceCollector implements IDriverPool {
         loadTimeStopwatch.stop();
         Double loadTime = (double) loadTimeStopwatch.elapsed(TimeUnit.MILLISECONDS);
         LOGGER.info("LOAD TIME " + loadTime);
-        allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName, actionName, elementName));
+        allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName, eventType, elementName));
         loadTimeQty++;
     }
 
-    public void collectSnapshotBenchmarks(String flowName, String actionName, String elementName) {
+    public void collectSnapshotBenchmarks(String flowName, EventType eventType, String elementName) {
         Instant instant = Instant.now();
         Double cpuValue = collectCpuBenchmarks();
         Double memValue = collectMemoryBenchmarks();
@@ -65,17 +66,17 @@ public abstract class PerformanceCollector implements IDriverPool {
         }
 
         try {
-            allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName, elementName));
-            allBenchmarks.add(new Memory(memValue, instant, flowName, userName, actionName, elementName));
+            allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, eventType, elementName));
+            allBenchmarks.add(new Memory(memValue, instant, flowName, userName, eventType, elementName));
         } catch (Exception e) {
             LOGGER.warn("There was a problem in snapshot benchmarks:");
             LOGGER.warn(e.getMessage());
         }
     }
 
-    public void collectNetBenchmarks(String flowName, String actionName, String elementName) {
+    public void collectNetBenchmarks(String flowName, EventType eventType, String elementName) {
         Instant instant = Instant.now();
-        Network netValue = subtractNetData(instant, flowName, actionName, elementName);
+        Network netValue = subtractNetData(instant, flowName, eventType, elementName);
         try {
             if (netValue != null) {
                 allBenchmarks.add(netValue);
@@ -124,8 +125,8 @@ public abstract class PerformanceCollector implements IDriverPool {
         this.userName = userName;
     }
 
-    public void setActionElementNames(String actionName, String elementName) {
-        this.actionName = actionName;
+    public void setEventTypeElementName(EventType eventType, String elementName) {
+        this.eventType = eventType;
         this.elementName = elementName;
     }
 
@@ -135,7 +136,7 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     protected abstract GfxParser.GfxRow collectGfxBenchmarks();
 
-    protected abstract Network subtractNetData(Instant instant, String flowName, String actionName, String elementName);
+    protected abstract Network subtractNetData(Instant instant, String flowName, EventType eventType, String elementName);
 
     protected abstract void collectNetData();
 

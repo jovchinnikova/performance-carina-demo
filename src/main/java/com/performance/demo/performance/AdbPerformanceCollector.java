@@ -3,6 +3,7 @@ package com.performance.demo.performance;
 import com.google.common.collect.ImmutableMap;
 import com.performance.demo.performance.dao.Gfx;
 import com.performance.demo.performance.dao.Network;
+import com.performance.demo.performance.ios.pojo.EventType;
 import com.performance.demo.utils.parser.GeneralParser;
 import com.performance.demo.utils.parser.GfxParser;
 import com.performance.demo.utils.parser.MemParser;
@@ -201,23 +202,23 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
      * @return A {@link Network} instance containing the calculated results and additional information.
      */
 
-    private Network makeSubtraction(Instant instant, String flowName, String actionName, String elementName) {
+    private Network makeSubtraction(Instant instant, String flowName, EventType eventType, String elementName) {
         long rbResult = netRowEnd.getRb() - netRowStart.getRb();
         long rpResult = netRowEnd.getRp() - netRowStart.getRp();
         long tbResult = netRowEnd.getTb() - netRowStart.getTb();
         long tpResult = netRowEnd.getTp() - netRowStart.getTp();
         netRowStart = netRowEnd;
 
-        return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName, actionName, elementName);
+        return new Network(rbResult, rpResult, tbResult, tpResult, instant, flowName, userName, eventType, elementName);
     }
 
     @Override
-    protected Network subtractNetData(Instant instant, String flowName, String actionName, String elementName) {
+    protected Network subtractNetData(Instant instant, String flowName, EventType eventType, String elementName) {
         try {
             collectNetData();
             LOGGER.info("Net rows:\nNetRowStart: {}\nNetRowEnd: {}", netRowStart, netRowEnd);
             netQuantity++;
-            return makeSubtraction(instant, flowName, actionName, elementName);
+            return makeSubtraction(instant, flowName, eventType, elementName);
         } catch (Exception e) {
             LOGGER.warn("Exception: " + e);
             LOGGER.warn("No network data was received for the start or the end of the test");

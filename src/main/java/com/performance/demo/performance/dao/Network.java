@@ -2,6 +2,7 @@ package com.performance.demo.performance.dao;
 
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
+import com.performance.demo.performance.ios.pojo.EventType;
 
 import java.time.Instant;
 
@@ -22,8 +23,8 @@ public class Network extends BaseMeasurement {
 
     public Network(long bytesReceived, long receivedPackets, long transferredBytes,
                    long transferredPackets, Instant time, String flowName,
-                   String userName, String actionName, String elementName) {
-        super(flowName, time, userName, actionName, elementName);
+                   String userName, EventType eventType, String elementName) {
+        super(flowName, time, userName, eventType, elementName);
         this.bytesReceived = bytesReceived;
         this.receivedPackets = receivedPackets;
         this.transferredBytes = transferredBytes;

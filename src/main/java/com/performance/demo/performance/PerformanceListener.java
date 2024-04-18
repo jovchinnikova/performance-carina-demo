@@ -87,7 +87,7 @@ public class PerformanceListener implements WebDriverListener {
         }
         if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
-            performanceCollector.setEventElementNames(click, elementName);
+            performanceCollector.setEventTypeElementName(click, elementName);
         }
     }
 
@@ -105,7 +105,7 @@ public class PerformanceListener implements WebDriverListener {
             performanceCollector.collectSnapshotBenchmarks(flowName, sendKeys, elementName);
         if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
-            performanceCollector.setEventElementNames(sendKeys, elementName);
+            performanceCollector.setEventTypeElementName(sendKeys, elementName);
         }
     }
 
