@@ -11,7 +11,8 @@ public enum GrafanaLinkParameter {
     DEVICE_NAME("device_name", ""), OS_VERSION("os_version", ""), FLOW("flow", ""),
     METRIC_NAME("metric_name", ""),
     USER("user", ""), ORG_ID("org", R.TESTDATA.get("grafana_org_id")), TEST_ID("test_id", 0),
-    RUN_ID("run_id", 0), TOKEN("token", R.TESTDATA.getDecrypted("grafana_token"));
+    RUN_ID("run_id", 0), TOKEN("token", R.TESTDATA.getDecrypted("grafana_token")),
+    DASH_UID("dash_uid", "");
 
     private String name;
     private Object value;

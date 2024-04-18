@@ -137,6 +137,7 @@ public interface IPerformanceTest extends IAbstractTest {
             GrafanaLinkParameter.METRIC_NAME.setValue(metricName);
             GrafanaLinkParameter.USER.setValue(performanceCollector.getUserName());
             GrafanaLinkParameter.FLOW.setValue(performanceCollector.getFlowName());
+            GrafanaLinkParameter.DASH_UID.setValue(metricName);
             for (GrafanaLinkParameter parameter : GrafanaLinkParameter.values()) {
                 if (!parameter.getValue().equals(0.0) && !parameter.getValue().equals(""))
                     params.put(parameter.getName(), parameter.getValue());

@@ -38,6 +38,7 @@ public class GrafanaUtil {
         GrafanaLinkParameter.TEST_ID.setValue(CurrentTest.getId().orElse(0L));
         GrafanaLinkParameter.RUN_ID.setValue(CurrentTestRun.getId().orElse(0L));
         GrafanaLinkParameter.FLOW.setValue(PerformanceListener.getFlowName());
+        GrafanaLinkParameter.DASH_UID.setValue(R.TESTDATA.get("grafana_android_dash_uid"));
         for (GrafanaLinkParameter parameter : GrafanaLinkParameter.values()) {
             if (!parameter.getValue().equals(0.0) && !parameter.getValue().equals(""))
                 params.put(parameter.getName(), parameter.getValue());
