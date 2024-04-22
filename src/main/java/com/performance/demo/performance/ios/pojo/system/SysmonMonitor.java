@@ -32,7 +32,7 @@ public class SysmonMonitor extends BaseMeasurement {
 
     @Column(name = "threads_user")
     @JsonProperty("threadsUser")
-    protected BigInteger threadsUser;
+    protected String threadsUser;
 
     @Column(name = "__sandbox")
     @JsonProperty("__sandbox")
