@@ -31,7 +31,6 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     private String memCommand;
     private String memCommand2;
     private String netCommand;
-    private String netCommand2;
     private String gfxCommand;
 
     private NetParser.NetRow netRowStart;
@@ -115,6 +114,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
      *
      * @return The calculated memory benchmark value, or null if data collection fails.
      */
+    @Override
     protected Double collectMemoryBenchmarks() {
         Double memValue = null;
         String memOutput = collectBenchmark(memCommand);

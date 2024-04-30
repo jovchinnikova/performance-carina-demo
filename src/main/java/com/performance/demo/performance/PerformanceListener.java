@@ -83,7 +83,6 @@ public class PerformanceListener implements WebDriverListener {
         String elementName = getElementName();
         if (flowName != null) {
             performanceCollector.collectSnapshotBenchmarks(flowName, click, elementName);
-            performanceCollector.collectNetBenchmarks(flowName, click, elementName);
         }
         if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
@@ -142,7 +141,6 @@ public class PerformanceListener implements WebDriverListener {
 
         if (flowName != null) {
             performanceCollector.collectSnapshotBenchmarks(flowName, eventType, element);
-            performanceCollector.collectNetBenchmarks(flowName, eventType, element);
         }
     }
 
