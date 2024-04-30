@@ -56,6 +56,7 @@ public abstract class PerformanceCollector implements IDriverPool {
         Instant instant = Instant.now();
         Double cpuValue = collectCpuBenchmarks();
         Double memValue = collectMemoryBenchmarks();
+        Network netValue = subtractNetData(instant, flowName, actionName, elementName);
 
         if (!epochSeconds) {
             long instantToEpoch = instant.toEpochMilli();
@@ -65,25 +66,15 @@ public abstract class PerformanceCollector implements IDriverPool {
         }
 
         try {
+            if (netValue != null) {
+                allBenchmarks.add(netValue);
+            } else {
+                throw new NullPointerException("No runtime data for network was received.");
+            }
             allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName, elementName));
             allBenchmarks.add(new Memory(memValue, instant, flowName, userName, actionName, elementName));
         } catch (Exception e) {
             LOGGER.warn("There was a problem in snapshot benchmarks:");
-            LOGGER.warn(e.getMessage());
-        }
-    }
-
-    public void collectNetBenchmarks(String flowName, String actionName, String elementName) {
-        Instant instant = Instant.now();
-        Network netValue = subtractNetData(instant, flowName, actionName, elementName);
-        try {
-            if (netValue != null) {
-                allBenchmarks.add(netValue);
-            } else {
-                throw new NullPointerException("No runtime data for network was received");
-            }
-        } catch (Exception e) {
-            LOGGER.warn("There was a problem in net benchmarks:");
             LOGGER.warn(e.getMessage());
         }
     }
