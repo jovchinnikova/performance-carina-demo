@@ -35,7 +35,6 @@ public class BaseMeasurement implements IDriverPool {
     @Column(tag = true, name = "env")
     private String env;
 
-    @JsonIgnore
     @Column(timestamp = true)
     protected Instant time;
 

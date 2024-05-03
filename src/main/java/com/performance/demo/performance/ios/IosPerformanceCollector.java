@@ -42,6 +42,7 @@ public class IosPerformanceCollector implements IDriverPool {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl))
                 .header("bundle", R.CONFIG.get("bundle_id"))
+                .header("name", R.CONFIG.get("app_name"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
