@@ -47,7 +47,7 @@ public abstract class PerformanceCollector implements IDriverPool {
         Instant instant = Instant.now();
         loadTimeStopwatch.stop();
         Double loadTime = (double) loadTimeStopwatch.elapsed(TimeUnit.MILLISECONDS);
-        LOGGER.info("LOAD TIME " + loadTime);
+        LOGGER.info("LOAD TIME {}", loadTime);
         allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName, actionName, elementName));
         loadTimeQty++;
     }
