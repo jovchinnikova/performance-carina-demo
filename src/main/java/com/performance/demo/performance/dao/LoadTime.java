@@ -10,19 +10,19 @@ import java.time.Instant;
 public class LoadTime extends BaseMeasurement{
 
     @Column(name = "value")
-    private Double loadTime;
+    private Double value;
 
-    public LoadTime(Double loadTime, String flowName, Instant time, String userName, EventType eventType, String elementName) {
+    public LoadTime(Double value, String flowName, Instant time, String userName, EventType eventType, String elementName) {
         super(flowName, time, userName, eventType, elementName);
-        this.loadTime = loadTime;
+        this.value = value;
     }
 
-    public Double getLoadTime() {
-        return loadTime;
+    public Double getValue() {
+        return value;
     }
 
-    public void setLoadTime(Double loadTime) {
-        this.loadTime = loadTime;
+    public void setValue(Double value) {
+        this.value = value;
     }
 
 }

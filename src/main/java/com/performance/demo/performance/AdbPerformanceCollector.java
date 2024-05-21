@@ -164,7 +164,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     @Override
     protected void collectNetData() {
         String netData = collectBenchmark(netCommand);
-        LOGGER.info("NetData:\n" + netData);
+        LOGGER.info("NetData:\n{}", netData);
 
         String[] lines = netData.split("\\r?\\n");
         long[] totalColumns = new long[5];
@@ -220,7 +220,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
             netQuantity++;
             return makeSubtraction(instant, flowName, eventType, elementName);
         } catch (Exception e) {
-            LOGGER.warn("Exception: " + e);
+            LOGGER.warn("Exception: {}", e.getMessage());
             LOGGER.warn("No network data was received for the start or the end of the test");
         }
         return null;
@@ -264,8 +264,8 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
             actionCount = netQuantity + loadTimeQty + cpuQuantity + memQuantity + 1;
             LOGGER.warn("No time duration was collected during test execution");
         }
-        LOGGER.info("cpuQuantity: " + cpuQuantity + ", memQuantity: " + memQuantity +
-                ", loadTimeQuantity: " + loadTimeQty + ", netQuantity: " + netQuantity);
+
+        LOGGER.info("cpuQuantity: {}, memQuantity: {}, loadTimeQuantity: {}, netQuantity: {}", cpuQuantity, memQuantity, loadTimeQty, netQuantity);
 
         int benchmarkCount = allBenchmarks.size();
 
@@ -278,11 +278,11 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     private void generateCommands() {
         String pid = executeMobileShellCommand(pidCommand).trim();
-        LOGGER.info("PID: " + pid);
+        LOGGER.info("PID: {}", pid);
         String nifCommand = String.format(PerformanceTypes.NIF.cmdArgs, pid);
         String nifOutput = executeMobileShellCommand(nifCommand).trim();
         String[] nifs = nifOutput.split("\\r?\\n");
-        LOGGER.info("NETWORK INTERFACES: " + Arrays.toString(nifs));
+        LOGGER.info("NETWORK INTERFACES: {}", Arrays.toString(nifs));
         netCommand = String.format(netCommandBuilder(nifs), pid);
         cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
         memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
