@@ -30,7 +30,7 @@ public class PerformanceListener implements WebDriverListener {
      * This method should be used in the beginning of each performance test
      */
     public static void startPerformanceTracking(String flowName, String userName, boolean isCollectLoginTime, boolean isCollectExecutionTime) {
-        if (!SpecialKeywords.IOS.equalsIgnoreCase(WebDriverConfiguration.getCapability(CapabilityType.PLATFORM_NAME).get())) {
+        if (!SpecialKeywords.IOS.equalsIgnoreCase(WebDriverConfiguration.getCapability(CapabilityType.PLATFORM_NAME).orElseThrow())) {
             try {
                 performanceCollector = new AdbPerformanceCollector();
                 performanceCollector.setUserName(userName);
@@ -117,12 +117,12 @@ public class PerformanceListener implements WebDriverListener {
             action = Arrays.stream(stackTrace)
                     .filter(e -> e.getClassName().contains("IMobileUtils"))
                     .reduce((first, second) -> second)
-                    .get().getMethodName();
+                    .orElseThrow().getMethodName();
         } catch (Exception e) {
             LOGGER.warn("There was an error during retrieving action name: {}", e.getMessage());
         }
 
-        LOGGER.info("METHOD NAME: " + action);
+        LOGGER.info("METHOD NAME: {}", action);
         if (flowName != null) {
             performanceCollector.collectSnapshotBenchmarks(flowName, action, element);
         }
